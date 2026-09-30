@@ -1,0 +1,56 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('results', function (Blueprint $table) {
+            $table->id();
+
+            // Ujian
+            $table->foreignId('exam_id')
+                  ->constrained('exams')
+                  ->cascadeOnDelete();
+
+            // Siswa
+            $table->foreignId('siswa_id')
+                  ->constrained('users')
+                  ->cascadeOnDelete();
+
+            // Rekap nilai
+            $table->integer('jumlah_benar')->default(0);
+            $table->integer('jumlah_salah')->default(0);
+
+            // Nilai akhir
+            $table->decimal('nilai', 5, 2)->default(0);
+
+            // Cara ujian dikumpulkan
+            $table->enum('submit_type', [
+                'normal',
+                'timeout',
+                'tab_switch'
+            ])->default('normal');
+
+            // Waktu pengumpulan
+            $table->timestamp('submitted_at')->nullable();
+
+            $table->timestamps();
+
+            // Satu siswa hanya punya satu hasil
+            // untuk satu ujian
+            $table->unique([
+                'exam_id',
+                'siswa_id'
+            ]);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('results');
+    }
+};
