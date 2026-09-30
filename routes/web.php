@@ -62,5 +62,3 @@ Route::middleware(['auth', 'role:siswa'])->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-Route::post('/guru/hasil-ujian/{exam}/siswa/{siswa}/approve-retake', [ExamResultController::class, 'approveRetake'])->name('guru.results.approve-retake');
