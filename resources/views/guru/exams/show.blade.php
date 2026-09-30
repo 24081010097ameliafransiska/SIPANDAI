@@ -2429,8 +2429,8 @@
         class="bulk-modal"
         id="bulkQuestionModal"
         data-existing-count="{{ $exam->questions->count() }}"
-        data-store-url="{{ route('guru.questions.store', $exam->id) }}"
-        data-redirect-url="{{ route('guru.exams.show', $exam->id) }}">
+        data-store-url="{{ route('guru.questions.store', $exam->id, false) }}"
+        data-redirect-url="{{ route('guru.exams.show', $exam->id, false) }}">
 
         <div class="bulk-modal-card">
 
