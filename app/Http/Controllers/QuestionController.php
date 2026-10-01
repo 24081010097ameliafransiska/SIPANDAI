@@ -36,10 +36,10 @@ class QuestionController extends Controller
         Question::create([
             'exam_id' => $exam->id,
             'pertanyaan' => $validated['pertanyaan'],
-            'opsi_a' => $validated['pilihan_a'],
-            'opsi_b' => $validated['pilihan_b'],
-            'opsi_c' => $validated['pilihan_c'],
-            'opsi_d' => $validated['pilihan_d'],
+            'pilihan_a' => $validated['pilihan_a'],
+            'pilihan_b' => $validated['pilihan_b'],
+            'pilihan_c' => $validated['pilihan_c'],
+            'pilihan_d' => $validated['pilihan_d'],
             'jawaban_benar' => $validated['jawaban_benar'],
         ]);
 
@@ -61,11 +61,8 @@ class QuestionController extends Controller
         return view('guru.questions.edit', compact('exam', 'question'));
     }
 
-    public function update(
-        Request $request,
-        Exam $exam,
-        Question $question
-    ) {
+    public function update(Request $request, Exam $exam, Question $question)
+    {
         if ($exam->guru_id !== Auth::id()) {
             abort(403);
         }
@@ -85,10 +82,10 @@ class QuestionController extends Controller
 
         $question->update([
             'pertanyaan' => $validated['pertanyaan'],
-            'opsi_a' => $validated['pilihan_a'],
-            'opsi_b' => $validated['pilihan_b'],
-            'opsi_c' => $validated['pilihan_c'],
-            'opsi_d' => $validated['pilihan_d'],
+            'pilihan_a' => $validated['pilihan_a'],
+            'pilihan_b' => $validated['pilihan_b'],
+            'pilihan_c' => $validated['pilihan_c'],
+            'pilihan_d' => $validated['pilihan_d'],
             'jawaban_benar' => $validated['jawaban_benar'],
         ]);
 
@@ -97,10 +94,8 @@ class QuestionController extends Controller
             ->with('success', 'Soal berhasil diperbarui.');
     }
 
-    public function destroy(
-        Exam $exam,
-        Question $question
-    ) {
+    public function destroy(Exam $exam, Question $question)
+    {
         if ($exam->guru_id !== Auth::id()) {
             abort(403);
         }
