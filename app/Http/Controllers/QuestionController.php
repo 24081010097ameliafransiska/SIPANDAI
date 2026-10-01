@@ -26,28 +26,20 @@ class QuestionController extends Controller
 
         $validated = $request->validate([
             'pertanyaan' => 'required|string',
-            'opsi_a' => 'required|string',
-            'opsi_b' => 'required|string',
-            'opsi_c' => 'required|string',
-            'opsi_d' => 'required|string',
+            'pilihan_a' => 'required|string',
+            'pilihan_b' => 'required|string',
+            'pilihan_c' => 'required|string',
+            'pilihan_d' => 'required|string',
             'jawaban_benar' => 'required|in:A,B,C,D',
-        ], [
-            'pertanyaan.required' => 'Pertanyaan wajib diisi.',
-            'opsi_a.required' => 'Opsi A wajib diisi.',
-            'opsi_b.required' => 'Opsi B wajib diisi.',
-            'opsi_c.required' => 'Opsi C wajib diisi.',
-            'opsi_d.required' => 'Opsi D wajib diisi.',
-            'jawaban_benar.required' => 'Jawaban benar wajib dipilih.',
-            'jawaban_benar.in' => 'Jawaban benar harus A, B, C, atau D.',
         ]);
 
         Question::create([
             'exam_id' => $exam->id,
             'pertanyaan' => $validated['pertanyaan'],
-            'opsi_a' => $validated['opsi_a'],
-            'opsi_b' => $validated['opsi_b'],
-            'opsi_c' => $validated['opsi_c'],
-            'opsi_d' => $validated['opsi_d'],
+            'opsi_a' => $validated['pilihan_a'],
+            'opsi_b' => $validated['pilihan_b'],
+            'opsi_c' => $validated['pilihan_c'],
+            'opsi_d' => $validated['pilihan_d'],
             'jawaban_benar' => $validated['jawaban_benar'],
         ]);
 
@@ -66,10 +58,7 @@ class QuestionController extends Controller
             abort(404);
         }
 
-        return view(
-            'guru.questions.edit',
-            compact('exam', 'question')
-        );
+        return view('guru.questions.edit', compact('exam', 'question'));
     }
 
     public function update(
@@ -87,27 +76,19 @@ class QuestionController extends Controller
 
         $validated = $request->validate([
             'pertanyaan' => 'required|string',
-            'opsi_a' => 'required|string',
-            'opsi_b' => 'required|string',
-            'opsi_c' => 'required|string',
-            'opsi_d' => 'required|string',
+            'pilihan_a' => 'required|string',
+            'pilihan_b' => 'required|string',
+            'pilihan_c' => 'required|string',
+            'pilihan_d' => 'required|string',
             'jawaban_benar' => 'required|in:A,B,C,D',
-        ], [
-            'pertanyaan.required' => 'Pertanyaan wajib diisi.',
-            'opsi_a.required' => 'Opsi A wajib diisi.',
-            'opsi_b.required' => 'Opsi B wajib diisi.',
-            'opsi_c.required' => 'Opsi C wajib diisi.',
-            'opsi_d.required' => 'Opsi D wajib diisi.',
-            'jawaban_benar.required' => 'Jawaban benar wajib dipilih.',
-            'jawaban_benar.in' => 'Jawaban benar harus A, B, C, atau D.',
         ]);
 
         $question->update([
             'pertanyaan' => $validated['pertanyaan'],
-            'opsi_a' => $validated['opsi_a'],
-            'opsi_b' => $validated['opsi_b'],
-            'opsi_c' => $validated['opsi_c'],
-            'opsi_d' => $validated['opsi_d'],
+            'opsi_a' => $validated['pilihan_a'],
+            'opsi_b' => $validated['pilihan_b'],
+            'opsi_c' => $validated['pilihan_c'],
+            'opsi_d' => $validated['pilihan_d'],
             'jawaban_benar' => $validated['jawaban_benar'],
         ]);
 
