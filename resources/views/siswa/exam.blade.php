@@ -638,7 +638,7 @@
 
                                         <label for="q{{ $question->id }}_a">
                                             <strong>A.</strong>
-                                            {{ $question->opsi_a }}
+                                            {{ $question->pilihan_a }}
                                         </label>
 
                                     </div>
