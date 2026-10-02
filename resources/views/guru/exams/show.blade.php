@@ -2330,17 +2330,17 @@
 
                                             <div class="option {{ $question->jawaban_benar === 'B' ? 'correct' : '' }}">
                                                 <span class="option-letter">B.</span>
-                                                <span>{{ $question->opsi_b }}</span>
+                                                <span>{{ $question->pilihan_b }}</span>
                                             </div>
 
                                             <div class="option {{ $question->jawaban_benar === 'C' ? 'correct' : '' }}">
                                                 <span class="option-letter">C.</span>
-                                                <span>{{ $question->opsi_c }}</span>
+                                                <span>{{ $question->pilihan_c }}</span>
                                             </div>
 
                                             <div class="option {{ $question->jawaban_benar === 'D' ? 'correct' : '' }}">
                                                 <span class="option-letter">D.</span>
-                                                <span>{{ $question->opsi_d }}</span>
+                                                <span>{{ $question->pilihan_d }}</span>
                                             </div>
 
                                         </div>
@@ -3132,7 +3132,9 @@
 
         async function saveAllBulkQuestions() {
 
-            const cards = document.querySelectorAll(".bulk-question");
+            const cards = document.querySelectorAll(
+                "#bulkQuestionList .bulk-question"
+            );
 
             if (!cards.length) {
                 alert("Silakan tambah minimal 1 form soal terlebih dahulu.");
@@ -3171,7 +3173,7 @@
                 saveButton.disabled = true;
                 saveButton.innerHTML =
                     '<i class="fa-solid fa-spinner fa-spin"></i>' +
-                    '<span>Menyimpan...</span>';
+                    '<span>Menyimpan ' + questions.length + ' soal...</span>';
             }
 
             const csrfMeta = document.querySelector(
@@ -3185,19 +3187,13 @@
             }
 
             const csrfToken = csrfMeta.getAttribute("content");
-
-            const bulkModalEl =
-                document.getElementById("bulkQuestionModal");
-
-            const storeUrl =
-                bulkModalEl
-                    ? bulkModalEl.dataset.storeUrl
-                    : "";
-
-            const redirectUrl =
-                bulkModalEl
-                    ? bulkModalEl.dataset.redirectUrl
-                    : "";
+            const bulkModalEl = document.getElementById("bulkQuestionModal");
+            const storeUrl = bulkModalEl
+                ? bulkModalEl.dataset.storeUrl
+                : "";
+            const redirectUrl = bulkModalEl
+                ? bulkModalEl.dataset.redirectUrl
+                : "";
 
             if (!storeUrl) {
                 alert("URL simpan soal tidak ditemukan.");
@@ -3207,133 +3203,68 @@
 
             try {
 
-                for (let i = 0; i < questions.length; i++) {
+                /*
+                 * PENTING:
+                 * Semua soal dikirim dalam SATU request.
+                 * Sebelumnya setiap soal dikirim satu per satu.
+                 * Itu membuat redirect/response soal pertama dapat
+                 * mengganggu soal berikutnya.
+                 */
+                const response = await fetch(storeUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": csrfToken,
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        _token: csrfToken,
+                        questions: questions
+                    })
+                });
 
-                    const formData = new FormData();
+                if (!response.ok) {
 
-                    formData.append("_token", csrfToken);
-                    formData.append(
-                        "pertanyaan",
-                        questions[i].pertanyaan
-                    );
-                    formData.append(
-                        "pilihan_a",
-                        questions[i].pilihan_a
-                    );
-                    formData.append(
-                        "pilihan_b",
-                        questions[i].pilihan_b
-                    );
-                    formData.append(
-                        "pilihan_c",
-                        questions[i].pilihan_c
-                    );
-                    formData.append(
-                        "pilihan_d",
-                        questions[i].pilihan_d
-                    );
-                    formData.append(
-                        "jawaban_benar",
-                        questions[i].jawaban_benar
-                    );
-
-                    let response;
+                    let message = "Gagal menyimpan soal.";
 
                     try {
-
-                        response = await fetch(storeUrl, {
-
-                            method: "POST",
-
-                            headers: {
-                                "Accept": "application/json, text/html",
-                                "X-CSRF-TOKEN": csrfToken,
-                                "X-Requested-With": "XMLHttpRequest"
-                            },
-
-                            credentials: "same-origin",
-
-                            cache: "no-store",
-
-                            body: formData
-                        });
-
-                    } catch (networkError) {
-
-                        console.warn(
-                            "Request selesai tetapi response tidak diterima:",
-                            networkError
-                        );
-
-                        window.location.href =
-                            redirectUrl || window.location.href;
-
-                        return;
-                    }
-
-                    if (response.ok) {
-                        continue;
-                    }
-
-                    let serverMessage = "";
-
-                    try {
-
-                        const contentType =
-                            response.headers.get("content-type") || "";
-
-                        if (
-                            contentType.includes("application/json")
-                        ) {
-
-                            const json = await response.json();
-
-                            serverMessage =
-                                json.message ||
-                                json.error ||
-                                "";
-
-                        } else {
-
-                            serverMessage =
-                                await response.text();
-
+                        const result = await response.json();
+                        if (result.message) {
+                            message = result.message;
                         }
-
-                    } catch (readError) {
-
-                        console.warn(
-                            "Tidak bisa membaca response server:",
-                            readError
-                        );
+                        if (result.errors) {
+                            const firstError = Object.values(result.errors)
+                                .flat()[0];
+                            if (firstError) {
+                                message = firstError;
+                            }
+                        }
+                    } catch (e) {
+                        // Response bukan JSON; gunakan pesan umum.
                     }
 
-                    console.error(
-                        "Server mengembalikan HTTP error:",
-                        response.status,
-                        serverMessage
-                    );
-
-                    window.location.href =
-                        redirectUrl || window.location.href;
-
-                    return;
+                    throw new Error(message);
                 }
 
+                /*
+                 * Response sukses diterima.
+                 * Baru setelah itu pindah ke halaman detail.
+                 */
                 window.location.href =
                     redirectUrl || window.location.href;
 
             } catch (error) {
 
-                console.error(
-                    "Bulk Question Error:",
-                    error
+                console.error("Bulk Question Error:", error);
+
+                alert(
+                    error.message ||
+                    "Terjadi kesalahan saat menyimpan soal."
                 );
 
-                window.location.href =
-                    redirectUrl || window.location.href;
-
-                return;
+                resetBulkSaveButton();
             }
         }
 
@@ -3344,8 +3275,7 @@
 
         function resetBulkSaveButton() {
 
-            const saveButton =
-                document.getElementById("bulkSaveButton");
+            const saveButton = document.getElementById("bulkSaveButton");
 
             if (!saveButton) {
                 return;
@@ -3356,7 +3286,9 @@
             saveButton.innerHTML =
                 '<i class="fa-solid fa-check"></i>' +
                 '<span>Simpan Semua Soal</span>';
+
         }
+
 
         /* =====================================================
            KLIK LUAR MODAL
