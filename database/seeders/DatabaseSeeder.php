@@ -19,5 +19,7 @@ class DatabaseSeeder extends Seeder
                 'role' => 'guru',
             ]
         );
+
+        $this->call(SiswaSeeder::class);
     }
 }
