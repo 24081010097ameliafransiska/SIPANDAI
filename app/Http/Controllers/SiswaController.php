@@ -44,28 +44,16 @@ class SiswaController extends Controller
         if (!$exam) {
             return back()
                 ->withInput()
-                ->with(
-                    'error',
-                    'Kode ujian tidak ditemukan.'
-                );
+                ->with('error', 'Kode ujian tidak ditemukan.');
         }
 
         if (strtolower(trim($exam->status)) !== 'aktif') {
             return back()
                 ->withInput()
-                ->with(
-                    'error',
-                    'Ujian ini belum aktif atau sudah selesai.'
-                );
+                ->with('error', 'Ujian ini belum aktif atau sudah selesai.');
         }
 
         $siswaId = Auth::id();
-
-        /*
-        |--------------------------------------------------------------------------
-        | CEK FOTO ABSEN
-        |--------------------------------------------------------------------------
-        */
 
         $fotoAbsen = $request->input('foto_absen');
 
@@ -75,22 +63,8 @@ class SiswaController extends Controller
         ) {
             return back()
                 ->withInput()
-                ->with(
-                    'error',
-                    'Foto absen tidak valid. Silakan ambil foto kembali.'
-                );
+                ->with('error', 'Foto absen tidak valid. Silakan ambil foto kembali.');
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | SIMPAN FOTO ABSEN KE STORAGE
-        |--------------------------------------------------------------------------
-        |
-        | Foto dari kamera masih berupa base64.
-        | Kita ubah menjadi file JPG agar tidak menyimpan base64
-        | berukuran besar langsung di database.
-        |
-        */
 
         try {
             $parts = explode(',', $fotoAbsen, 2);
@@ -105,26 +79,11 @@ class SiswaController extends Controller
                 throw new \Exception('Data foto tidak dapat dibaca.');
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | BATASI UKURAN FOTO
-            |--------------------------------------------------------------------------
-            */
-
             if (strlen($imageData) > 5 * 1024 * 1024) {
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'Ukuran foto terlalu besar. Silakan ambil foto kembali.'
-                    );
+                    ->with('error', 'Ukuran foto terlalu besar. Silakan ambil foto kembali.');
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | CEK TIPE FILE
-            |--------------------------------------------------------------------------
-            */
 
             $imageInfo = @getimagesizefromstring($imageData);
 
@@ -145,12 +104,6 @@ class SiswaController extends Controller
                 throw new \Exception('Format foto tidak didukung.');
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | NAMA FILE
-            |--------------------------------------------------------------------------
-            */
-
             $filename = 'absen_' .
                 $siswaId . '_' .
                 $exam->id . '_' .
@@ -158,48 +111,24 @@ class SiswaController extends Controller
                 uniqid() .
                 '.jpg';
 
-            /*
-            |--------------------------------------------------------------------------
-            | SIMPAN KE STORAGE
-            |--------------------------------------------------------------------------
-            */
-
             Storage::disk('public')->put(
                 'foto-absen/' . $filename,
                 $imageData
             );
 
             $fotoPath = 'foto-absen/' . $filename;
-
         } catch (\Throwable $e) {
-
             return back()
                 ->withInput()
-                ->with(
-                    'error',
-                    'Foto absen gagal diproses. Silakan ambil foto kembali.'
-                );
+                ->with('error', 'Foto absen gagal diproses. Silakan ambil foto kembali.');
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | CARI ATTEMPT TERAKHIR SISWA
-        |--------------------------------------------------------------------------
-        */
 
         $attempt = ExamAttempt::where('exam_id', $exam->id)
             ->where('siswa_id', $siswaId)
             ->orderByDesc('attempt_number')
             ->first();
 
-        /*
-        |--------------------------------------------------------------------------
-        | BELUM PERNAH MENGERJAKAN
-        |--------------------------------------------------------------------------
-        */
-
         if (!$attempt) {
-
             $newAttempt = ExamAttempt::create([
                 'exam_id' => $exam->id,
                 'siswa_id' => $siswaId,
@@ -214,37 +143,15 @@ class SiswaController extends Controller
                 'exam_attempt_id' => $newAttempt->id,
             ]);
 
-            return redirect()->route(
-                'siswa.exam',
-                $exam->id
-            );
+            return redirect()->route('siswa.exam', $exam->id);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | MASIH AKTIF
-        |--------------------------------------------------------------------------
-        |
-        | Kalau siswa refresh / masuk kembali ketika attempt masih aktif,
-        | foto terbaru akan dipasang ke attempt yang sama.
-        |
-        */
-
         if ($attempt->status === 'active') {
-
-            /*
-            |--------------------------------------------------------------------------
-            | HAPUS FOTO LAMA JIKA ADA
-            |--------------------------------------------------------------------------
-            */
-
             if (
                 !empty($attempt->foto_absen) &&
                 Storage::disk('public')->exists($attempt->foto_absen)
             ) {
-                Storage::disk('public')->delete(
-                    $attempt->foto_absen
-                );
+                Storage::disk('public')->delete($attempt->foto_absen);
             }
 
             $attempt->update([
@@ -256,31 +163,10 @@ class SiswaController extends Controller
                 'exam_attempt_id' => $attempt->id,
             ]);
 
-            return redirect()->route(
-                'siswa.exam',
-                $exam->id
-            );
+            return redirect()->route('siswa.exam', $exam->id);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | SUDAH SUBMIT
-        |--------------------------------------------------------------------------
-        */
-
         if ($attempt->status === 'submitted') {
-
-            /*
-            |--------------------------------------------------------------------------
-            | FOTO BARU TIDAK DIPAKAI
-            |--------------------------------------------------------------------------
-            |
-            | Karena siswa sudah tidak boleh masuk lagi,
-            | hapus foto yang baru saja diupload agar tidak menjadi
-            | file yatim di storage.
-            |
-            */
-
             if (
                 !empty($fotoPath) &&
                 Storage::disk('public')->exists($fotoPath)
@@ -296,14 +182,7 @@ class SiswaController extends Controller
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | MENUNGGU PERSETUJUAN
-        |--------------------------------------------------------------------------
-        */
-
         if ($attempt->status === 'waiting_approval') {
-
             if (
                 !empty($fotoPath) &&
                 Storage::disk('public')->exists($fotoPath)
@@ -319,14 +198,7 @@ class SiswaController extends Controller
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | DISETUJUI UNTUK UJIAN ULANG
-        |--------------------------------------------------------------------------
-        */
-
         if ($attempt->status === 'approved') {
-
             $newAttempt = ExamAttempt::create([
                 'exam_id' => $exam->id,
                 'siswa_id' => $siswaId,
@@ -341,17 +213,8 @@ class SiswaController extends Controller
                 'exam_attempt_id' => $newAttempt->id,
             ]);
 
-            return redirect()->route(
-                'siswa.exam',
-                $exam->id
-            );
+            return redirect()->route('siswa.exam', $exam->id);
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | STATUS TIDAK DIKENAL
-        |--------------------------------------------------------------------------
-        */
 
         if (
             !empty($fotoPath) &&
@@ -406,19 +269,78 @@ class SiswaController extends Controller
             'exam_attempt_id' => $attempt->id,
         ]);
 
+        if (empty($attempt->randomized_data)) {
+            $questions = Question::where(
+                'exam_id',
+                $exam->id
+            )
+                ->orderBy('id')
+                ->get();
+
+            $questionOrder = $questions
+                ->pluck('id')
+                ->shuffle()
+                ->values()
+                ->toArray();
+
+            $options = [];
+
+            foreach ($questions as $question) {
+                $originalOptions = [
+                    'A',
+                    'B',
+                    'C',
+                    'D',
+                ];
+
+                $shuffledOptions = collect($originalOptions)
+                    ->shuffle()
+                    ->values()
+                    ->toArray();
+
+                $options[$question->id] = [
+                    'A' => $shuffledOptions[0],
+                    'B' => $shuffledOptions[1],
+                    'C' => $shuffledOptions[2],
+                    'D' => $shuffledOptions[3],
+                ];
+            }
+
+            $attempt->update([
+                'randomized_data' => [
+                    'question_order' => $questionOrder,
+                    'options' => $options,
+                ],
+            ]);
+        }
+
+        $randomizedData = $attempt->randomized_data ?? [];
+
+        $questionOrder = $randomizedData['question_order'] ?? [];
+
         $questions = Question::where(
             'exam_id',
             $exam->id
         )
-            ->orderBy('id')
-            ->get();
+            ->whereIn('id', $questionOrder)
+            ->get()
+            ->sortBy(function ($question) use ($questionOrder) {
+                return array_search(
+                    $question->id,
+                    $questionOrder
+                );
+            })
+            ->values();
+
+        $options = $randomizedData['options'] ?? [];
 
         return view(
             'siswa.exam',
             compact(
                 'exam',
                 'questions',
-                'attempt'
+                'attempt',
+                'options'
             )
         );
     }
@@ -447,21 +369,57 @@ class SiswaController extends Controller
                 );
         }
 
-        $questions = Question::where(
-            'exam_id',
-            $exam->id
-        )
-            ->orderBy('id')
-            ->get();
+        $randomizedData = $attempt->randomized_data ?? [];
+
+        $optionMapping = $randomizedData['options'] ?? [];
+
+        $questionOrder = $randomizedData['question_order'] ?? [];
+
+        if (!empty($questionOrder)) {
+            $questions = Question::where(
+                'exam_id',
+                $exam->id
+            )
+                ->whereIn('id', $questionOrder)
+                ->get()
+                ->sortBy(function ($question) use ($questionOrder) {
+                    return array_search(
+                        $question->id,
+                        $questionOrder
+                    );
+                })
+                ->values();
+        } else {
+            $questions = Question::where(
+                'exam_id',
+                $exam->id
+            )
+                ->orderBy('id')
+                ->get();
+        }
 
         $jumlahBenar = 0;
         $jumlahSalah = 0;
 
         foreach ($questions as $question) {
-
-            $jawaban = $request->input(
+            $jawabanTampilan = $request->input(
                 'jawaban.' . $question->id
             );
+
+            $jawabanAsli = null;
+
+            if (
+                $jawabanTampilan !== null &&
+                $jawabanTampilan !== '' &&
+                isset($optionMapping[$question->id][$jawabanTampilan])
+            ) {
+                $jawabanAsli = $optionMapping[$question->id][$jawabanTampilan];
+            } elseif (
+                $jawabanTampilan !== null &&
+                $jawabanTampilan !== ''
+            ) {
+                $jawabanAsli = $jawabanTampilan;
+            }
 
             Answer::updateOrCreate(
                 [
@@ -470,14 +428,14 @@ class SiswaController extends Controller
                     'siswa_id' => $siswaId,
                 ],
                 [
-                    'jawaban' => $jawaban,
+                    'jawaban' => $jawabanAsli,
                 ]
             );
 
             if (
-                $jawaban !== null &&
-                $jawaban !== '' &&
-                strtoupper(trim($jawaban)) ===
+                $jawabanAsli !== null &&
+                $jawabanAsli !== '' &&
+                strtoupper(trim($jawabanAsli)) ===
                 strtoupper(trim($question->jawaban_benar))
             ) {
                 $jumlahBenar++;
@@ -494,12 +452,6 @@ class SiswaController extends Controller
 
         $nilai = round($nilai, 2);
 
-        /*
-        |--------------------------------------------------------------------------
-        | SIMPAN HASIL UJIAN
-        |--------------------------------------------------------------------------
-        */
-
         ExamResult::updateOrCreate(
             [
                 'exam_id' => $exam->id,
@@ -515,27 +467,10 @@ class SiswaController extends Controller
             ]
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | SELESAIKAN ATTEMPT
-        |--------------------------------------------------------------------------
-        |
-        | Foto absen TETAP berada di ExamAttempt.
-        | Jadi guru nanti bisa mengambil foto berdasarkan
-        | siswa + ujian + attempt.
-        |
-        */
-
         $attempt->update([
             'status' => 'submitted',
             'submitted_at' => now(),
         ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | SIMPAN HASIL KE SESSION
-        |--------------------------------------------------------------------------
-        */
 
         session([
             'exam_result' => [

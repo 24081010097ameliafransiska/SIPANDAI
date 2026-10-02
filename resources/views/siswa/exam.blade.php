@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $exam->nama_ujian }} - SIPANDAI</title>
-
     <style>
         * {
             margin: 0;
@@ -35,10 +33,6 @@
             color: var(--text);
             min-height: 100vh;
         }
-
-        /* =========================
-           NAVBAR
-        ========================= */
 
         .navbar {
             height: 70px;
@@ -94,19 +88,11 @@
             font-size: 12px;
         }
 
-        /* =========================
-           CONTAINER
-        ========================= */
-
         .container {
             max-width: 1200px;
             margin: 30px auto;
             padding: 0 25px 50px;
         }
-
-        /* =========================
-           LAYOUT
-        ========================= */
 
         .exam-layout {
             display: grid;
@@ -114,10 +100,6 @@
             gap: 25px;
             align-items: start;
         }
-
-        /* =========================
-           KARTU SOAL
-        ========================= */
 
         .question-card-wrapper {
             background: var(--white);
@@ -198,10 +180,6 @@
             color: var(--text);
         }
 
-        /* =========================
-           OPTIONS
-        ========================= */
-
         .option {
             display: flex;
             align-items: center;
@@ -244,10 +222,6 @@
             color: var(--primary);
             margin-right: 5px;
         }
-
-        /* =========================
-           NAVIGASI SOAL
-        ========================= */
 
         .question-navigation {
             display: flex;
@@ -296,10 +270,6 @@
             opacity: .5;
             cursor: not-allowed;
         }
-
-        /* =========================
-           KOLOM KANAN
-        ========================= */
 
         .right-column {
             display: flex;
@@ -365,10 +335,6 @@
             color: var(--primary);
         }
 
-        /* =========================
-           LEGEND
-        ========================= */
-
         .legend {
             margin-top: 20px;
             padding-top: 16px;
@@ -397,10 +363,6 @@
             border-color: var(--green);
         }
 
-        /* =========================
-           EMPTY
-        ========================= */
-
         .empty {
             background: var(--white);
             border-radius: 18px;
@@ -410,10 +372,6 @@
             box-shadow: 0 5px 20px rgba(80, 40, 40, .05);
             border: 1px solid var(--border-light);
         }
-
-        /* =========================
-           TAB WARNING
-        ========================= */
 
         .tab-warning {
             display: none;
@@ -433,12 +391,7 @@
             border: 1px solid #f2cccc;
         }
 
-        /* =========================
-           RESPONSIVE
-        ========================= */
-
         @media (max-width: 850px) {
-
             .exam-layout {
                 grid-template-columns: 1fr;
             }
@@ -457,7 +410,6 @@
         }
 
         @media (max-width: 650px) {
-
             .navbar {
                 padding: 0 20px;
             }
@@ -500,12 +452,7 @@
         }
     </style>
 </head>
-
 <body>
-
-    <!-- =========================
-         TAB WARNING
-    ========================= -->
 
     <div id="tabWarning" class="tab-warning">
         Kamu meninggalkan halaman ujian.
@@ -513,90 +460,48 @@
         Jawaban sedang dikirim...
     </div>
 
-    <!-- =========================
-         NAVBAR
-    ========================= -->
-
     <nav class="navbar">
-
         <div class="brand">
-
             <img
                 src="{{ asset('images/logo.jpg') }}"
                 alt="Logo SMKN 2"
             >
-
-            <span class="logo">
-                SIPANDAI
-            </span>
-
+            <span class="logo">SIPANDAI</span>
         </div>
 
         <div class="exam-info">
-
-            <strong>
-                {{ $exam->nama_ujian }}
-            </strong>
-
-            <span>
-                {{ $exam->mata_pelajaran }} • {{ $exam->kelas }}
-            </span>
-
+            <strong>{{ $exam->nama_ujian }}</strong>
+            <span>{{ $exam->mata_pelajaran }} • {{ $exam->kelas }}</span>
         </div>
-
     </nav>
 
-    <!-- =========================
-         CONTENT
-    ========================= -->
-
     <main class="container">
-
-        <!-- =========================
-             LAYOUT UJIAN
-        ========================= -->
-
         <div class="exam-layout">
 
-            <!-- =========================
-                 BAGIAN SOAL
-            ========================= -->
-
             <div class="question-area">
-
                 <form
                     action="{{ route('siswa.exam.submit', $exam) }}"
                     method="POST"
                     id="examForm"
                 >
-
                     @csrf
 
-                    @if($exam->questions->count() > 0)
+                    @if($questions->count() > 0)
 
                         <div class="question-card-wrapper">
 
-                            <!-- TOPBAR: SOAL NO. + SISA WAKTU -->
-
                             <div class="question-topbar">
-
                                 <div class="soal-no">
-
-                                    <span>
-                                        SOAL NO.
-                                    </span>
-
+                                    <span>SOAL NO.</span>
                                     <span
                                         class="soal-no-badge"
                                         id="soalNoBadge"
                                     >
                                         1
                                     </span>
-
                                 </div>
 
                                 <div class="exam-timer-bar">
-
                                     <span class="label">
                                         Sisa Waktu
                                     </span>
@@ -607,95 +512,52 @@
                                     >
                                         00:00:00
                                     </span>
-
                                 </div>
-
                             </div>
 
-                            @foreach($exam->questions as $index => $question)
+                            @foreach($questions as $index => $question)
+
+                                @php
+                                    $questionOptions = $options[$question->id] ?? [
+                                        'A' => 'A',
+                                        'B' => 'B',
+                                        'C' => 'C',
+                                        'D' => 'D',
+                                    ];
+                                @endphp
 
                                 <div
                                     class="question-card {{ $index === 0 ? 'active' : '' }}"
                                     data-question="{{ $index }}"
                                 >
 
-                                    <!-- PERTANYAAN -->
-
                                     <div class="question-text">
                                         {{ $question->pertanyaan }}
                                     </div>
 
-                                    <!-- PILIHAN A -->
+                                    @foreach(['A', 'B', 'C', 'D'] as $displayLetter)
 
-                                    <div class="option">
+                                        @php
+                                            $originalLetter = $questionOptions[$displayLetter] ?? $displayLetter;
+                                            $optionField = 'pilihan_' . strtolower($originalLetter);
+                                            $optionText = $question->{$optionField};
+                                        @endphp
 
-                                        <input
-                                            type="radio"
-                                            id="q{{ $question->id }}_a"
-                                            name="jawaban[{{ $question->id }}]"
-                                            value="A"
-                                        >
+                                        <div class="option">
+                                            <input
+                                                type="radio"
+                                                id="q{{ $question->id }}_{{ strtolower($displayLetter) }}"
+                                                name="jawaban[{{ $question->id }}]"
+                                                value="{{ $displayLetter }}"
+                                            >
 
-                                        <label for="q{{ $question->id }}_a">
-                                            <strong>A.</strong>
-                                            {{ $question->pilihan_a }}
-                                        </label>
+                                            <label for="q{{ $question->id }}_{{ strtolower($displayLetter) }}">
+                                                <strong>{{ $displayLetter }}.</strong>
+                                                {{ $optionText }}
+                                            </label>
+                                        </div>
 
-                                    </div>
-
-                                    <!-- PILIHAN B -->
-
-                                    <div class="option">
-
-                                        <input
-                                            type="radio"
-                                            id="q{{ $question->id }}_b"
-                                            name="jawaban[{{ $question->id }}]"
-                                            value="B"
-                                        >
-
-                                        <label for="q{{ $question->id }}_b">
-                                            <strong>B.</strong>
-                                            {{ $question->pilihan_b }}
-                                        </label>
-
-                                    </div>
-
-                                    <!-- PILIHAN C -->
-
-                                    <div class="option">
-
-                                        <input
-                                            type="radio"
-                                            id="q{{ $question->id }}_c"
-                                            name="jawaban[{{ $question->id }}]"
-                                            value="C"
-                                        >
-
-                                        <label for="q{{ $question->id }}_c">
-                                            <strong>C.</strong>
-                                            {{ $question->pilihan_c }}
-                                        </label>
-
-                                    </div>
-
-                                    <!-- PILIHAN D -->
-
-                                    <div class="option">
-
-                                        <input
-                                            type="radio"
-                                            id="q{{ $question->id }}_d"
-                                            name="jawaban[{{ $question->id }}]"
-                                            value="D"
-                                        >
-
-                                        <label for="q{{ $question->id }}_d">
-                                            <strong>D.</strong>
-                                            {{ $question->pilihan_d }}
-                                        </label>
-
-                                    </div>
+                                    @endforeach
 
                                 </div>
 
@@ -703,10 +565,7 @@
 
                         </div>
 
-                        <!-- NAVIGASI -->
-
                         <div class="question-navigation">
-
                             <button
                                 type="button"
                                 class="nav-btn prev-btn"
@@ -724,43 +583,29 @@
                             >
                                 Soal Selanjutnya
                             </button>
-
                         </div>
 
                     @else
 
                         <div class="empty">
-
-                            <h3>
-                                Belum Ada Soal
-                            </h3>
-
+                            <h3>Belum Ada Soal</h3>
                             <p style="margin-top: 8px;">
                                 Guru belum menambahkan soal
                                 ke dalam ujian ini.
                             </p>
-
                         </div>
 
                     @endif
 
                 </form>
-
             </div>
 
-            <!-- =========================
-                 KOLOM KANAN
-            ========================= -->
-
-            @if($exam->questions->count() > 0)
+            @if($questions->count() > 0)
 
                 <div class="right-column">
 
                     <div class="number-panel">
-
-                        <h3>
-                            Nomor Soal
-                        </h3>
+                        <h3>Nomor Soal</h3>
 
                         <p>
                             Pilih nomor untuk berpindah soal
@@ -768,7 +613,7 @@
 
                         <div class="number-grid">
 
-                            @foreach($exam->questions as $index => $question)
+                            @foreach($questions as $index => $question)
 
                                 <button
                                     type="button"
@@ -782,28 +627,19 @@
 
                         </div>
 
-                        <!-- KETERANGAN WARNA -->
-
                         <div class="legend">
 
                             <div class="legend-item">
-
                                 <div class="legend-box green"></div>
-
                                 Sudah dijawab
-
                             </div>
 
                             <div class="legend-item">
-
                                 <div class="legend-box"></div>
-
                                 Belum dijawab
-
                             </div>
 
                         </div>
-
                     </div>
 
                 </div>
@@ -811,19 +647,9 @@
             @endif
 
         </div>
-
     </main>
 
-    <!-- =========================
-         JAVASCRIPT
-    ========================= -->
-
     <script>
-
-        /* =========================
-           DATA SOAL
-        ========================= */
-
         let currentQuestion = 0;
 
         const questions =
@@ -850,13 +676,7 @@
         let sudahSubmit = false;
         let sedangMengirim = false;
 
-
-        /* =========================
-           TAMPILKAN SOAL
-        ========================= */
-
         function showQuestion(index) {
-
             index = Number(index);
 
             if (
@@ -869,50 +689,35 @@
             currentQuestion = index;
 
             questions.forEach(function(question, i) {
-
                 if (i === index) {
                     question.classList.add('active');
                 } else {
                     question.classList.remove('active');
                 }
-
             });
 
             numberButtons.forEach(function(button, i) {
-
                 if (i === index) {
                     button.classList.add('active');
                 } else {
                     button.classList.remove('active');
                 }
-
             });
 
             if (soalNoBadge) {
-
                 soalNoBadge.textContent =
                     String(index + 1);
-
             }
 
             updateNavButtons();
         }
 
-
-        /* =========================
-           KLIK NOMOR SOAL
-        ========================= */
-
         numberButtons.forEach(function(button) {
-
             button.addEventListener(
                 'click',
                 function() {
-
                     const index =
-                        Number(
-                            this.dataset.number
-                        );
+                        Number(this.dataset.number);
 
                     showQuestion(index);
 
@@ -920,21 +725,12 @@
                         top: 0,
                         behavior: 'smooth'
                     });
-
                 }
             );
-
         });
 
-
-        /* =========================
-           SOAL SEBELUMNYA
-        ========================= */
-
         function previousQuestion() {
-
             if (currentQuestion > 0) {
-
                 showQuestion(
                     currentQuestion - 1
                 );
@@ -943,23 +739,14 @@
                     top: 0,
                     behavior: 'smooth'
                 });
-
             }
-
         }
 
-
-        /* =========================
-           SOAL SELANJUTNYA
-        ========================= */
-
         function nextQuestion() {
-
             if (
                 currentQuestion <
                 questions.length - 1
             ) {
-
                 showQuestion(
                     currentQuestion + 1
                 );
@@ -968,27 +755,16 @@
                     top: 0,
                     behavior: 'smooth'
                 });
-
             }
-
         }
 
-
-        /* =========================
-           UPDATE NAVIGASI
-        ========================= */
-
         function updateNavButtons() {
-
             if (prevButton) {
-
                 prevButton.disabled =
                     currentQuestion === 0;
-
             }
 
             if (nextButton) {
-
                 const isLastQuestion =
                     currentQuestion ===
                     questions.length - 1;
@@ -997,26 +773,16 @@
                     isLastQuestion
                         ? 'Submit'
                         : 'Soal Selanjutnya';
-
             }
-
         }
 
-
-        /* =========================
-           TOMBOL NEXT / SUBMIT
-        ========================= */
-
         function handleNextOrSubmit() {
-
             const isLastQuestion =
                 currentQuestion ===
                 questions.length - 1;
 
             if (!isLastQuestion) {
-
                 nextQuestion();
-
                 return;
             }
 
@@ -1037,27 +803,17 @@
             sudahSubmit = true;
 
             if (nextButton) {
-
                 nextButton.disabled = true;
-
                 nextButton.textContent =
                     'Mengirim Jawaban...';
-
             }
 
             if (examForm) {
                 examForm.requestSubmit();
             }
-
         }
 
-
-        /* =========================
-           UPDATE STATUS JAWABAN
-        ========================= */
-
         function updateAnsweredStatus(questionCard) {
-
             const checked =
                 questionCard.querySelector(
                     'input[type="radio"]:checked'
@@ -1080,25 +836,15 @@
             }
 
             if (checked) {
-
                 numberButton.classList.add(
                     'answered'
                 );
-
             } else {
-
                 numberButton.classList.remove(
                     'answered'
                 );
-
             }
-
         }
-
-
-        /* =========================
-           KETIKA SISWA MEMILIH JAWABAN
-        ========================= */
 
         const radioButtons =
             document.querySelectorAll(
@@ -1106,11 +852,9 @@
             );
 
         radioButtons.forEach(function(input) {
-
             input.addEventListener(
                 'change',
                 function() {
-
                     const questionCard =
                         this.closest(
                             '.question-card'
@@ -1119,31 +863,15 @@
                     updateAnsweredStatus(
                         questionCard
                     );
-
                 }
             );
-
         });
 
-
-        /* =========================
-           STATUS AWAL
-        ========================= */
-
         questions.forEach(function(question) {
-
-            updateAnsweredStatus(
-                question
-            );
-
+            updateAnsweredStatus(question);
         });
 
         updateNavButtons();
-
-
-        /* =========================
-           TIMER UJIAN
-        ========================= */
 
         let sisaDetik = 0;
 
@@ -1153,7 +881,6 @@
             );
 
         if (examTimerEl) {
-
             const durasiMenit =
                 parseInt(
                     examTimerEl.dataset.durasiMenit,
@@ -1162,12 +889,9 @@
 
             sisaDetik =
                 durasiMenit * 60;
-
         }
 
-
         function tampilkanTimer() {
-
             if (!examTimerEl) {
                 return;
             }
@@ -1193,35 +917,27 @@
                 String(detik).padStart(2, '0');
 
             if (sisaDetik <= 60) {
-
                 examTimerEl.classList.add(
                     'low'
                 );
-
             }
-
         }
 
-
         tampilkanTimer();
-
 
         const examTimerInterval =
             setInterval(function() {
 
                 if (sudahSubmit) {
-
                     clearInterval(
                         examTimerInterval
                     );
-
                     return;
                 }
 
                 sisaDetik--;
 
                 if (sisaDetik <= 0) {
-
                     sisaDetik = 0;
 
                     tampilkanTimer();
@@ -1241,13 +957,7 @@
 
             }, 1000);
 
-
-        /* =========================
-           AUTO SUBMIT
-        ========================= */
-
         function autoSubmitUjian(alasan) {
-
             if (
                 sudahSubmit ||
                 sedangMengirim
@@ -1263,41 +973,27 @@
             sudahSubmit = true;
 
             if (tabWarning) {
-
                 tabWarning.style.display =
                     'block';
 
                 if (alasan) {
-
                     tabWarning.innerHTML =
                         alasan +
                         '<br>Jawaban sedang dikirim...';
-
                 }
-
             }
 
             if (nextButton) {
-
-                nextButton.disabled =
-                    true;
+                nextButton.disabled = true;
 
                 nextButton.textContent =
                     'Ujian Dikumpulkan...';
-
             }
 
             examForm.requestSubmit();
-
         }
 
-
-        /* =========================
-           SUBMIT MANUAL
-        ========================= */
-
         if (examForm) {
-
             examForm.addEventListener(
                 'submit',
                 function() {
@@ -1305,30 +1001,20 @@
                     if (
                         sudahSubmit === false
                     ) {
-
                         sudahSubmit = true;
 
                         if (nextButton) {
-
                             nextButton.disabled =
                                 true;
 
                             nextButton.textContent =
                                 'Mengirim Jawaban...';
-
                         }
-
                     }
 
                 }
             );
-
         }
-
-
-        /* =========================
-           DETEKSI PINDAH TAB
-        ========================= */
 
         document.addEventListener(
             'visibilitychange',
@@ -1338,20 +1024,13 @@
                     document.hidden &&
                     !sudahSubmit
                 ) {
-
                     autoSubmitUjian(
                         'Kamu meninggalkan halaman ujian.'
                     );
-
                 }
 
             }
         );
-
-
-        /* =========================
-           DETEKSI BROWSER BLUR
-        ========================= */
 
         window.addEventListener(
             'blur',
@@ -1362,40 +1041,26 @@
                     document.visibilityState ===
                     'hidden'
                 ) {
-
                     autoSubmitUjian(
                         'Kamu meninggalkan halaman ujian.'
                     );
-
                 }
 
             }
         );
-
-
-        /* =========================
-           PAGE HIDE
-        ========================= */
 
         window.addEventListener(
             'pagehide',
             function() {
 
                 if (!sudahSubmit) {
-
                     autoSubmitUjian(
                         'Halaman ujian ditinggalkan.'
                     );
-
                 }
 
             }
         );
-
-
-        /* =========================
-           BLOK BACK BROWSER
-        ========================= */
 
         history.pushState(
             null,
@@ -1408,45 +1073,27 @@
             function() {
 
                 if (!sudahSubmit) {
-
                     autoSubmitUjian(
                         'Kamu meninggalkan halaman ujian.'
                     );
-
                 }
 
             }
         );
-
-
-        /* =========================
-           BEFORE UNLOAD
-        ========================= */
 
         window.addEventListener(
             'beforeunload',
             function(event) {
 
                 if (!sudahSubmit) {
-
                     event.preventDefault();
-
                     event.returnValue = '';
-
                 }
 
             }
         );
 
-
-        /* =========================
-           MULAI DARI SOAL PERTAMA
-        ========================= */
-
         showQuestion(0);
-
     </script>
-
 </body>
-
 </html>

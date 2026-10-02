@@ -19,12 +19,14 @@ class ExamAttempt extends Model
         'approved_by',
         'approved_at',
         'foto_absen',
+        'randomized_data',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
         'submitted_at' => 'datetime',
         'approved_at' => 'datetime',
+        'randomized_data' => 'array',
     ];
 
     public function exam()

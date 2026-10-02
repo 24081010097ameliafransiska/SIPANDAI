@@ -4,70 +4,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ $exam->nama_ujian }} - SIPANDAI</title>
 
-    <title>Dashboard Guru - SIPANDAI</title>
-
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    >
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
-
         :root {
             --red: #8f2635;
             --red-dark: #741c29;
             --red-light: #f7e9eb;
+            --red-soft: #edd4d8;
+
             --dark: #292929;
             --text: #383838;
             --muted: #777;
-            --bg: #e9e9e9;
+            --light-muted: #999;
+
+            --bg: #f2f2f2;
+            --bg-2: #ededed;
+
             --white: #fff;
-            --mint: #4fae7c;
-            --amber: #d99a3d;
+
+            --border: #dadada;
+            --border-light: #eeeeeb;
+
+            --green: #5b9b6d;
+            --green-dark: #438153;
+            --green-light: #e8f4eb;
+
             --sidebar-width: 245px;
-            --hero-image: url('{{ asset('images/gerbang2.png') }}');
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
             min-height: 100vh;
-            background: var(--bg);
+            background:
+                radial-gradient(circle at top right, rgba(143, 38, 53, .045), transparent 32%),
+                var(--bg);
             color: var(--text);
             font-family: "Inter", sans-serif;
             overflow-x: hidden;
         }
 
+        body.sidebar-open,
+        body.bulk-open { overflow: hidden; }
+
+        button, input, textarea, select { font-family: inherit; }
+
         a {
             text-decoration: none;
             color: inherit;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        button,
-        input {
-            font-family: inherit;
-        }
 
-        /* =========================================================
-           SIDEBAR
-        ========================================================= */
+        
 
         .sidebar {
             position: fixed;
@@ -75,213 +76,131 @@
             left: 0;
             width: var(--sidebar-width);
             height: 100vh;
-
             display: flex;
             flex-direction: column;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(48,27,32,.97),
-                    rgba(29,27,29,.97)
-                );
-
+            background: linear-gradient(145deg, rgba(48, 27, 32, .97), rgba(29, 27, 29, .97));
             backdrop-filter: blur(24px) saturate(135%);
             -webkit-backdrop-filter: blur(24px) saturate(135%);
-
             border-right: 1px solid rgba(255,255,255,.09);
-
             z-index: 1200;
-
             transform: translateX(calc(-100% - 2px));
-
-            transition:
-                transform .45s cubic-bezier(.22,1,.36,1),
-                box-shadow .45s ease;
-
+            transition: transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s ease;
             overflow: hidden;
-
-            box-shadow:
-                inset -1px 0 rgba(255,255,255,.025);
+            box-shadow: inset -1px 0 rgba(255,255,255,.025);
         }
 
         .sidebar::before {
             content: "";
-
             position: absolute;
-            top: -150px;
+            width: 260px;
+            height: 260px;
+            top: -120px;
             left: -120px;
-
-            width: 350px;
-            height: 350px;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(143,38,53,.25),
-                    rgba(143,38,53,.10) 35%,
-                    transparent 70%
-                );
-
+            background: radial-gradient(circle, rgba(143,38,53,.42), transparent 68%);
             pointer-events: none;
         }
 
         .sidebar::after {
             content: "";
-
             position: absolute;
             top: 0;
             right: 0;
-
             width: 1px;
             height: 100%;
-
-            background:
-                linear-gradient(
-                    to bottom,
-                    transparent,
-                    rgba(255,255,255,.12),
-                    transparent
-                );
-
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,.12), transparent);
             pointer-events: none;
         }
 
         .sidebar.show {
             transform: translateX(0);
-
-            box-shadow:
-                20px 0 55px rgba(0,0,0,.24),
-                inset -1px 0 rgba(255,255,255,.04);
+            box-shadow: 18px 0 45px rgba(0,0,0,.18), inset -1px 0 rgba(255,255,255,.025);
         }
+
+
+        
 
         .sidebar-header {
             position: relative;
-            z-index: 2;
-
             height: 88px;
-            min-height: 88px;
-
-            display: flex;
-            align-items: center;
-
             padding: 0 22px;
-
-            border-bottom: 1px solid rgba(255,255,255,.08);
-        }
-
-        .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,.075);
+            flex-shrink: 0;
+            z-index: 2;
         }
+
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; }
 
         .sidebar-logo {
             width: 42px;
             height: 42px;
-
             object-fit: contain;
-
-            border-radius: 0;
             background: transparent;
             border: none;
-
-            filter:
-                drop-shadow(0 4px 10px rgba(0,0,0,.18));
+            border-radius: 0;
+            filter: drop-shadow(0 5px 12px rgba(0,0,0,.22));
         }
 
-        .sidebar-brand-text {
-            line-height: 1.1;
-        }
+        .sidebar-brand-text { display: flex; flex-direction: column; gap: 3px; }
 
         .sidebar-brand-text strong {
-            display: block;
-
+            color: #fff;
             font-size: 15px;
             font-weight: 800;
-
-            color: #fff;
-
             letter-spacing: -.3px;
         }
 
         .sidebar-brand-text span {
-            display: block;
-
-            margin-top: 4px;
-
+            color: rgba(255,255,255,.42);
             font-size: 9px;
             font-weight: 600;
-
-            color: rgba(255,255,255,.42);
-
             letter-spacing: 1px;
         }
 
         .close-sidebar {
-            position: absolute;
-
-            top: 22px;
-            right: 18px;
-
             width: 34px;
             height: 34px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             border: 1px solid rgba(255,255,255,.08);
-
-            background: rgba(255,255,255,.045);
-
-            color: rgba(255,255,255,.55);
-
             border-radius: 9px;
-
-            font-size: 15px;
-
+            background: rgba(255,255,255,.055);
+            color: rgba(255,255,255,.68);
             cursor: pointer;
-
-            transition: .25s ease;
+            -webkit-tap-highlight-color: transparent;
+            transition: .25s ease, transform .3s ease;
         }
 
-        .close-sidebar:hover {
+        .close-sidebar:active {
+            background: rgba(255,255,255,.16);
             color: #fff;
-
-            background:
-                rgba(143,38,53,.58);
-
-            border-color:
-                rgba(255,255,255,.12);
-
-            transform: rotate(90deg);
         }
+
+        @media (hover: hover) {
+            .close-sidebar:hover {
+                background: rgba(255,255,255,.16);
+                color: #fff;
+                transform: rotate(90deg);
+            }
+        }
+
+
+        
 
         .sidebar-content {
             position: relative;
             z-index: 2;
-
             flex: 1;
-
             display: flex;
             flex-direction: column;
-
             padding: 25px 15px 15px;
-
-            min-height: 0;
-
             overflow-y: auto;
-            overflow-x: hidden;
         }
 
-        .sidebar-content::-webkit-scrollbar {
-            width: 3px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-track {
-            background: transparent;
-        }
+        .sidebar-content::-webkit-scrollbar { width: 4px; }
 
         .sidebar-content::-webkit-scrollbar-thumb {
             background: rgba(255,255,255,.12);
@@ -289,354 +208,193 @@
         }
 
         .sidebar-label {
-            padding: 0 12px 10px;
-
+            margin: 0 10px 12px;
+            color: rgba(255,255,255,.38);
             font-size: 9px;
             font-weight: 700;
-
-            color: rgba(255,255,255,.35);
-
             letter-spacing: 1.5px;
         }
 
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 5px; }
 
         .menu-item {
             position: relative;
-
+            min-height: 46px;
+            padding: 0 14px;
             display: flex;
             align-items: center;
-
-            gap: 13px;
-
-            min-height: 46px;
-
-            padding: 0 14px;
-
+            gap: 12px;
+            border: 1px solid transparent;
             border-radius: 11px;
-
-            color: rgba(255,255,255,.58);
-
+            color: rgba(255,255,255,.67);
             font-size: 13px;
             font-weight: 600;
-
-            border: 1px solid transparent;
-
-            transition:
-                background .25s ease,
-                color .25s ease,
-                transform .25s ease,
-                border-color .25s ease;
+            transition: background .25s ease, color .25s ease, transform .25s ease, box-shadow .25s ease;
         }
 
         .menu-item i {
             width: 19px;
-
-            text-align: center;
-
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,.42);
             font-size: 14px;
-
-            color: rgba(255,255,255,.38);
-
-            transition: .25s ease;
+            transition: color .25s ease;
         }
 
-        .menu-item:hover {
+        .menu-item:active {
             background: rgba(255,255,255,.065);
-
-            border-color:
-                rgba(255,255,255,.065);
-
             color: #fff;
-
-            transform: translateX(2px);
         }
 
-        .menu-item:hover i {
-            color: #e7aab2;
+        .menu-item:active i { color: #fff; }
+
+        @media (hover: hover) {
+            .menu-item:hover {
+                background: rgba(255,255,255,.065);
+                color: #fff;
+                transform: translateX(2px);
+            }
+
+            .menu-item:hover i { color: #fff; }
         }
 
         .menu-item.active {
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(143,38,53,.74),
-                    rgba(143,38,53,.37)
-                );
-
-            border:
-                1px solid rgba(255,255,255,.08);
-
+            background: linear-gradient(90deg, rgba(143,38,53,.74), rgba(143,38,53,.37));
+            border-color: rgba(255,255,255,.08);
             color: #fff;
-
-            box-shadow:
-                0 8px 22px rgba(0,0,0,.12),
-                inset 0 1px rgba(255,255,255,.07);
+            box-shadow: 0 8px 20px rgba(0,0,0,.12), inset 0 1px rgba(255,255,255,.06);
         }
 
         .menu-item.active::before {
             content: "";
-
             position: absolute;
-
             left: -1px;
-
             top: 9px;
             bottom: 9px;
-
             width: 3px;
-
-            background: #e7aab2;
-
-            border-radius:
-                0 5px 5px 0;
-
-            box-shadow:
-                0 0 10px rgba(231,170,178,.35);
+            background: #fff;
+            border-radius: 0 4px 4px 0;
         }
 
-        .menu-item.active i {
-            color: #fff;
-        }
+        .menu-item.active i { color: #fff; }
 
-        /* =========================================================
-           PROFILE
-        ========================================================= */
+
+        
 
         .sidebar-profile {
             margin-top: auto;
-
             padding: 15px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,.075),
-                    rgba(255,255,255,.035)
-                );
-
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-
-            border:
-                1px solid rgba(255,255,255,.085);
-
+            background: linear-gradient(145deg, rgba(255,255,255,.065), rgba(255,255,255,.025));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,.08);
             border-radius: 13px;
-
-            flex-shrink: 0;
-
-            box-shadow:
-                inset 0 1px rgba(255,255,255,.06),
-                0 10px 25px rgba(0,0,0,.10);
         }
 
         .sidebar-profile-top {
             display: flex;
             align-items: center;
-            gap: 11px;
-        }
-
-        .sidebar-avatar,
-        .profile-avatar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #a63847,
-                    #7e202e
-                );
-
-            color: #fff;
-
-            border:
-                1px solid rgba(255,255,255,.14);
-
-            border-radius: 50%;
-
-            font-weight: 800;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
         .sidebar-avatar {
             width: 38px;
             height: 38px;
-
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-shrink: 0;
-
-            font-size: 13px;
-
-            box-shadow:
-                0 5px 15px rgba(0,0,0,.20);
-        }
-
-        .avatar-wrap {
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .status-dot {
-            position: absolute;
-
-            right: -1px;
-            bottom: -1px;
-
-            width: 10px;
-            height: 10px;
-
             border-radius: 50%;
-
-            background: var(--mint);
-
-            border: 2px solid rgba(29,27,29,.97);
-
-            box-shadow:
-                0 0 0 0 rgba(79,174,124,.55);
-
-            animation:
-                statusPulse 2.4s ease-out infinite;
-        }
-
-        @keyframes statusPulse {
-            0% {
-                box-shadow:
-                    0 0 0 0 rgba(79,174,124,.45);
-            }
-
-            70% {
-                box-shadow:
-                    0 0 0 6px rgba(79,174,124,0);
-            }
-
-            100% {
-                box-shadow:
-                    0 0 0 0 rgba(79,174,124,0);
-            }
+            background: linear-gradient(145deg, #a73a49, #741c29);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 5px 15px rgba(0,0,0,.18);
         }
 
         .sidebar-profile-info {
             min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
         }
 
         .sidebar-profile-info strong {
-            display: block;
-
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-
+            color: #fff;
             font-size: 12px;
             font-weight: 700;
-
-            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .sidebar-profile-info span {
-            display: block;
-
-            margin-top: 3px;
-
-            font-size: 9px;
-
             color: rgba(255,255,255,.42);
+            font-size: 9px;
+            font-weight: 500;
         }
 
         .logout-link {
-            margin-top: 13px;
-
+            width: 100%;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-
             gap: 8px;
-
-            width: 100%;
-            height: 36px;
-
-            border:
-                1px solid rgba(231,170,178,.20);
-
+            border: 1px solid rgba(143,38,53,.32);
             border-radius: 8px;
-
-            background:
-                rgba(255,255,255,.035);
-
+            background: rgba(143,38,53,.12);
             color: #e7aab2;
-
             font-size: 11px;
             font-weight: 700;
-
-            transition: .25s ease;
-
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: .25s ease;
         }
 
-        .logout-link:hover {
-            background:
-                rgba(143,38,53,.72);
-
-            border-color:
-                rgba(231,170,178,.25);
-
+        .logout-link:active {
+            background: rgba(143,38,53,.78);
+            border-color: rgba(143,38,53,.9);
             color: #fff;
-
-            transform: translateY(-1px);
         }
 
-        /* =========================================================
-           OVERLAY
-        ========================================================= */
+        @media (hover: hover) {
+            .logout-link:hover {
+                background: rgba(143,38,53,.78);
+                border-color: rgba(143,38,53,.9);
+                color: #fff;
+            }
+        }
+
+
+        
 
         .sidebar-overlay {
             position: fixed;
-
             inset: 0;
-
-            background:
-                rgba(0,0,0,.22);
-
+            background: rgba(0,0,0,.42);
             opacity: 0;
             visibility: hidden;
-
-            z-index: 1100;
-
-            transition:
-                opacity .35s ease,
-                visibility .35s ease;
+            transition: .25s ease;
+            z-index: 1150;
         }
 
-        .sidebar-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
+        .sidebar-overlay.show { opacity: 1; visibility: visible; }
 
-        /* =========================================================
-           MAIN
-        ========================================================= */
+
+        
 
         .main {
             position: relative;
-
             width: 100%;
             max-width: none;
-
             min-height: 100vh;
-
             margin-left: 0;
             margin-right: 0;
-
             padding: 0;
-
             overflow: hidden;
-
-            transition:
-                margin-left .45s cubic-bezier(.22,1,.36,1),
-                width .45s cubic-bezier(.22,1,.36,1);
+            transition: margin-left .45s cubic-bezier(.22,1,.36,1), width .45s cubic-bezier(.22,1,.36,1);
         }
 
         body.sidebar-open .main {
@@ -644,48 +402,26 @@
             width: calc(100% - var(--sidebar-width));
         }
 
-        /* =========================================================
-           TOPBAR
-        ========================================================= */
+
+        
 
         .topbar {
             position: fixed;
-
             top: 0;
             left: 0;
-
             width: 100%;
             height: 64px;
-
+            padding: 0 4.5vw;
             display: flex;
             align-items: center;
             justify-content: space-between;
-
-            padding: 0 4.5vw;
-
-            z-index: 1050;
-
-            color: #fff;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(27,26,26,.88),
-                    rgba(27,26,26,.72)
-                );
-
+            background: linear-gradient(180deg, rgba(27,26,26,.88), rgba(27,26,26,.72));
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-
-            border-bottom:
-                1px solid rgba(255,255,255,.09);
-
-            box-shadow:
-                0 4px 20px rgba(0,0,0,.10);
-
-            transition:
-                left .45s cubic-bezier(.22,1,.36,1),
-                width .45s cubic-bezier(.22,1,.36,1);
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            box-shadow: 0 7px 25px rgba(0,0,0,.12);
+            z-index: 1050;
+            transition: left .45s cubic-bezier(.22,1,.36,1), width .45s cubic-bezier(.22,1,.36,1);
         }
 
         body.sidebar-open .topbar {
@@ -693,3622 +429,2815 @@
             width: calc(100% - var(--sidebar-width));
         }
 
-        .topbar-left,
-        .topbar-right,
-        .profile {
+        .topbar-left {
             display: flex;
             align-items: center;
-        }
-
-        .topbar-left {
             gap: 15px;
+            min-width: 0;
         }
 
         .navbar-home-btn {
             width: 39px;
             height: 39px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
-            border:
-                1px solid rgba(255,255,255,.13);
-
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,.12);
             border-radius: 10px;
-
-            background:
-                rgba(255,255,255,.06);
-
-            color:
-                rgba(255,255,255,.85);
-
-            font-size: 15px;
-
+            background: rgba(255,255,255,.065);
+            color: rgba(255,255,255,.82);
             cursor: pointer;
-
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
             transition: .25s ease;
         }
 
-        .navbar-home-btn:hover {
-            background:
-                rgba(143,38,53,.72);
-
-            border-color:
-                rgba(255,255,255,.18);
-
+        .navbar-home-btn:active {
+            background: rgba(255,255,255,.18);
+            border-color: rgba(255,255,255,.2);
             color: #fff;
+        }
 
-            transform: translateY(-1px);
+        @media (hover: hover) {
+            .navbar-home-btn:hover {
+                background: rgba(255,255,255,.16);
+                border-color: rgba(255,255,255,.2);
+                color: #fff;
+                transform: translateY(-1px);
+            }
+        }
+
+
+        
+
+        .navbar-logo-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 10px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform .25s ease, opacity .2s ease;
+        }
+
+        .navbar-logo-link:active { opacity: .65; }
+
+        @media (hover: hover) {
+            .navbar-logo-link:hover { transform: scale(1.06); }
         }
 
         .navbar-logo {
             width: 35px;
             height: 35px;
-
+            display: block;
             object-fit: contain;
-
             background: transparent;
             border: none;
             border-radius: 0;
-
-            flex-shrink: 0;
-
-            filter:
-                drop-shadow(0 3px 8px rgba(0,0,0,.18));
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,.18));
         }
 
         .navbar-title {
-            line-height: 1.05;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 0;
         }
 
-        .navbar-title strong {
-            display: block;
 
+        
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
+            line-height: 1;
+        }
+
+        .crumb {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
+        }
+
+
+        
+
+        .breadcrumb-root {
+            position: relative;
+            flex-shrink: 0;
+            
+            padding: 8px 2px;
+            margin: -8px -2px;
+            color: #fff;
             font-size: 14px;
             font-weight: 800;
-
             letter-spacing: -.2px;
+            white-space: nowrap;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: opacity .2s ease;
         }
 
-        .navbar-title span {
-            display: block;
+        .breadcrumb-root::after {
+            content: "";
+            position: absolute;
+            left: 2px;
+            right: 2px;
+            bottom: 5px;
+            height: 1.5px;
+            background: rgba(255,255,255,.85);
+            border-radius: 2px;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .3s cubic-bezier(.22,1,.36,1);
+        }
 
-            margin-top: 4px;
+        .breadcrumb-root:active { opacity: .65; }
 
+
+        
+
+        .breadcrumb-sep {
+            flex-shrink: 0;
+            color: rgba(255,255,255,.38);
             font-size: 8px;
+            transition: color .25s ease, transform .25s ease;
+        }
+
+
+        
+
+        .breadcrumb-link {
+            position: relative;
+            flex-shrink: 0;
+            padding: 8px 2px;
+            margin: -8px -2px;
+            color: rgba(255,255,255,.6);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: color .25s ease, opacity .2s ease;
+        }
+
+        .breadcrumb-link:active {
+            color: #fff;
+            opacity: .65;
+        }
+
+
+        
+
+        .breadcrumb-current {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-width: 0;
+            padding: 5px 11px 5px 9px;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            box-shadow: inset 0 1px rgba(255,255,255,.08);
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: background .25s ease, border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+        }
+
+        .breadcrumb-current::before {
+            content: "";
+            flex-shrink: 0;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(255,255,255,.6);
+        }
+
+        .breadcrumb-current span {
+            min-width: 0;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .breadcrumb-current:active {
+            background: linear-gradient(135deg, rgba(255,255,255,.28), rgba(255,255,255,.12));
+            border-color: rgba(255,255,255,.32);
+        }
+
+        @media (hover: hover) {
+
+            .breadcrumb-root:hover::after { transform: scaleX(1); }
+
+            .breadcrumb-link:hover { color: #fff; }
+
+            .breadcrumb:hover .breadcrumb-sep {
+                color: rgba(255,255,255,.7);
+                transform: translateX(1px);
+            }
+
+            .breadcrumb-current:hover {
+                background: linear-gradient(135deg, rgba(255,255,255,.26), rgba(255,255,255,.11));
+                border-color: rgba(255,255,255,.32);
+                transform: translateY(-1px);
+                box-shadow: 0 6px 16px rgba(0,0,0,.25), inset 0 1px rgba(255,255,255,.1);
+            }
+
+        }
+
+        .breadcrumb-root:focus-visible,
+        .breadcrumb-link:focus-visible,
+        .breadcrumb-current:focus-visible,
+        .navbar-logo-link:focus-visible {
+            outline: 2px solid rgba(255,255,255,.8);
+            outline-offset: 3px;
+        }
+
+        .navbar-title-sub {
+            color: rgba(255,255,255,.48);
+            font-size: 8px;
+            line-height: 1;
             font-weight: 600;
-
-            color:
-                rgba(255,255,255,.48);
-
             letter-spacing: 1.4px;
+            white-space: nowrap;
         }
 
         .topbar-right {
-            gap: 18px;
-        }
-
-        .notification-wrap {
-            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 17px;
+            flex-shrink: 0;
         }
 
         .notification {
-            position: relative;
-
             width: 37px;
             height: 37px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
+            border: 1px solid rgba(255,255,255,.08);
             border-radius: 50%;
-
-            color:
-                rgba(255,255,255,.75);
-
-            background:
-                rgba(255,255,255,.055);
-
-            border:
-                1px solid rgba(255,255,255,.08);
-
-            font-size: 14px;
-
+            background: rgba(255,255,255,.055);
+            color: rgba(255,255,255,.72);
+            font-size: 13px;
             cursor: pointer;
-
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
             transition: .25s ease;
         }
 
-        .notification:hover,
-        .notification.active {
-            background:
-                rgba(143,38,53,.62);
-
+        .notification:active {
+            background: rgba(255,255,255,.18);
             color: #fff;
         }
 
-        .notification-panel {
-            position: absolute;
-
-            top: 50px;
-            right: 0;
-
-            width: 300px;
-
-            max-height: 360px;
-
-            overflow-y: auto;
-
-            background: #fff;
-
-            border-radius: 14px;
-
-            border: 1px solid rgba(0,0,0,.06);
-
-            box-shadow:
-                0 20px 45px rgba(0,0,0,.18);
-
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-8px);
-
-            transition:
-                opacity .22s ease,
-                transform .22s ease,
-                visibility .22s ease;
-
-            z-index: 1400;
+        @media (hover: hover) {
+            .notification:hover {
+                background: rgba(255,255,255,.16);
+                color: #fff;
+            }
         }
 
-        .notification-panel.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .notification-panel-head {
-            padding: 14px 16px;
-
-            font-size: 11px;
-            font-weight: 800;
-
-            letter-spacing: .5px;
-
-            color: #292929;
-
-            border-bottom: 1px solid rgba(0,0,0,.06);
-        }
-
-        .notification-panel-item {
-            display: flex;
-            align-items: flex-start;
-
-            gap: 10px;
-
-            padding: 12px 16px;
-
-            border-bottom: 1px solid rgba(0,0,0,.045);
-
-            transition: background .2s ease;
-        }
-
-        .notification-panel-item:last-child {
-            border-bottom: none;
-        }
-
-        .notification-panel-item:hover {
-            background: rgba(143,38,53,.05);
-        }
-
-        .notification-panel-item i {
-            margin-top: 2px;
-
-            color: var(--red);
-
-            font-size: 12px;
-        }
-
-        .notification-panel-item strong {
-            display: block;
-
-            font-size: 11.5px;
-
-            font-weight: 700;
-
-            color: #292929;
-        }
-
-        .notification-panel-item span {
-            display: block;
-
-            margin-top: 2px;
-
-            font-size: 10px;
-
-            color: var(--muted);
-        }
-
-        .notification-panel-empty {
-            padding: 24px 16px;
-
-            text-align: center;
-
-            font-size: 11px;
-
-            color: var(--muted);
-        }
-
-        .profile {
-            gap: 10px;
-
-            cursor: pointer;
-
-            border-radius: 10px;
-
-            padding: 4px 6px;
-
-            transition: background .2s ease;
-        }
-
-        .profile:hover {
-            background: rgba(255,255,255,.07);
-        }
+        .profile { display: flex; align-items: center; gap: 9px; }
 
         .profile-avatar {
             width: 34px;
             height: 34px;
-
-            font-size: 12px;
-        }
-
-        .profile-info strong {
-            display: block;
-
-            font-size: 11px;
-            font-weight: 700;
-
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #a73a49, #741c29);
             color: #fff;
+            font-size: 11px;
+            font-weight: 800;
         }
+
+        .profile-info { display: flex; flex-direction: column; gap: 2px; }
+
+        .profile-info strong { color: #fff; font-size: 11px; font-weight: 700; }
 
         .profile-info span {
-            display: block;
-
-            margin-top: 2px;
-
+            color: rgba(255,255,255,.42);
             font-size: 9px;
-
-            color:
-                rgba(255,255,255,.45);
+            font-weight: 500;
         }
 
-        /* =========================================================
-           HERO
-        ========================================================= */
 
-        .welcome-hero {
-            position: relative;
+        
 
-            min-height: 620px;
+        .content {
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 96px 28px 40px;
+        }
 
+        .page-header {
             display: flex;
-            align-items: center;
-
-            padding: 110px 7vw 80px;
-
-            overflow: hidden;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(24,23,23,.42),
-                    rgba(24,23,23,.24) 20%,
-                    rgba(24,23,23,.10) 55%,
-                    rgba(24,23,23,.14)
-                ),
-
-                linear-gradient(
-                    90deg,
-                    rgba(25,24,24,.42),
-                    rgba(25,24,24,.24) 38%,
-                    rgba(25,24,24,.08) 70%,
-                    rgba(25,24,24,.04)
-                ),
-
-                var(--hero-image);
-
-            background-size: cover;
-            background-position: center;
-        }
-
-        .welcome-hero::before {
-            content: "";
-
-            position: absolute;
-
-            top: 0;
-            left: 0;
-            right: 0;
-
-            height: 105px;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(25,24,24,.22),
-                    transparent
-                );
-
-            pointer-events: none;
-
-            z-index: 1;
-        }
-
-        .welcome-hero::after {
-            content: "";
-
-            position: absolute;
-
-            left: 0;
-            right: 0;
-            bottom: 0;
-
-            height: 150px;
-
-            background:
-                linear-gradient(
-                    to bottom,
-                    transparent,
-                    #e9e9e9
-                );
-
-            pointer-events: none;
-
-            z-index: 1;
-        }
-
-        .welcome-content {
-            position: relative;
-
-            z-index: 2;
-
-            max-width: 650px;
-
-            color: #fff;
-        }
-
-        .welcome-eyebrow {
-            display: inline-flex;
-            align-items: center;
-
-            gap: 9px;
-
-            margin-bottom: 21px;
-
-            padding: 8px 12px;
-
-            border-radius: 50px;
-
-            background:
-                rgba(255,255,255,.09);
-
-            border:
-                1px solid rgba(255,255,255,.15);
-
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-
-            font-size: 9px;
-            font-weight: 700;
-
-            letter-spacing: 1.5px;
-
-            color:
-                rgba(255,255,255,.80);
-        }
-
-        .welcome-eyebrow i {
-            color: #e7aab2;
-        }
-
-        .welcome-title {
-            font-size:
-                clamp(42px,5.4vw,76px);
-
-            line-height: .98;
-
-            font-weight: 800;
-
-            letter-spacing: -3.5px;
-
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
             margin-bottom: 22px;
-
-            text-shadow:
-                0 8px 30px rgba(0,0,0,.18);
         }
 
-        .welcome-title span {
-            color: #e7aab2;
-        }
+        .page-header-left { min-width: 0; }
 
-        .welcome-description {
-            max-width: 470px;
-
-            font-size: 14px;
-
-            line-height: 1.8;
-
-            color:
-                rgba(255,255,255,.75);
-
-            margin-bottom: 28px;
-        }
-
-        .welcome-button {
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            min-width: 145px;
-            height: 43px;
-
-            padding: 0 20px;
-
-            border-radius: 9px;
-
-            background: #8f2635;
-
-            color: #fff;
-
-            font-size: 11px;
-            font-weight: 700;
-
-            box-shadow:
-                0 10px 25px rgba(0,0,0,.20);
-
-            transition: .25s ease;
-        }
-
-        .welcome-button:hover {
-            background: #a12c3d;
-
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 14px 28px rgba(0,0,0,.24);
-        }
-
-        .welcome-actions {
-            display: flex;
-            flex-wrap: wrap;
-
-            align-items: center;
-
-            gap: 12px;
-        }
-
-        .welcome-button-ghost {
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            gap: 8px;
-
-            min-width: 145px;
-            height: 43px;
-
-            padding: 0 20px;
-
-            border-radius: 9px;
-
-            background:
-                rgba(255,255,255,.08);
-
-            border:
-                1px solid rgba(255,255,255,.28);
-
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-
-            color: #fff;
-
-            font-size: 11px;
-            font-weight: 700;
-
-            transition: .25s ease;
-        }
-
-        .welcome-button-ghost i {
-            font-size: 10px;
-
-            transition: transform .25s ease;
-        }
-
-        .welcome-button-ghost:hover {
-            background:
-                rgba(255,255,255,.16);
-
-            border-color:
-                rgba(255,255,255,.45);
-
-            transform: translateY(-2px);
-        }
-
-        .welcome-button-ghost:hover i {
-            transform: translateY(2px);
-        }
-
-        /* =========================================================
-           STATS
-        ========================================================= */
-
-        .stats-section {
-            position: relative;
-
-            z-index: 3;
-
-            margin: -68px 7vw 0;
-
-            scroll-margin-top: 90px;
-        }
-
-        .stats-grid {
-            display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
-            gap: 14px;
-
-            max-width: 1280px;
-
-            margin: 0 auto;
-        }
-
-        .stat-card {
-            position: relative;
-
-            display: flex;
-            align-items: center;
-
-            gap: 13px;
-
-            padding: 18px 19px;
-
-            border-radius: 17px;
-
-            overflow: hidden;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,.85),
-                    rgba(255,255,255,.55)
-                );
-
-            border:
-                1px solid rgba(255,255,255,.85);
-
-            backdrop-filter:
-                blur(22px)
-                saturate(115%);
-
-            -webkit-backdrop-filter:
-                blur(22px)
-                saturate(115%);
-
-            box-shadow:
-                0 16px 34px rgba(35,25,25,.13),
-                inset 0 1px 0 rgba(255,255,255,.92);
-
-            cursor: pointer;
-
-            transition:
-                transform .4s cubic-bezier(.22,1,.36,1),
-                box-shadow .4s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-
-            box-shadow:
-                0 22px 42px rgba(35,25,25,.16),
-                inset 0 1px 0 rgba(255,255,255,.96);
-        }
-
-        .stat-card:active {
-            transform: translateY(-1px) scale(.99);
-        }
-
-        .stat-icon {
-            flex-shrink: 0;
-
-            width: 40px;
-            height: 40px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 12px;
-
-            background:
-                rgba(143,38,53,.09);
-
-            color: var(--red);
-
-            font-size: 13px;
-        }
-
-        .stat-body strong {
-            display: block;
-
-            font-size: 22px;
-
-            line-height: 1.1;
-
-            font-weight: 800;
-
-            color: #292929;
-
-            letter-spacing: -.5px;
-        }
-
-        .stat-body span {
-            display: block;
-
-            margin-top: 3px;
-
-            font-size: 10px;
-
-            font-weight: 600;
-
-            color: var(--muted);
-        }
-
-        /* =========================================================
-           SECTION
-        ========================================================= */
-
-        .about-section {
-            position: relative;
-
-            padding: 78px 5vw 105px;
-
-            background:
-                radial-gradient(
-                    circle at 15% 20%,
-                    rgba(143,38,53,.045),
-                    transparent 28%
-                ),
-
-                radial-gradient(
-                    circle at 85% 80%,
-                    rgba(255,255,255,.70),
-                    transparent 30%
-                ),
-
-                #e9e9e9;
-
-            overflow: hidden;
-        }
-
-        .about-section::before {
-            content: "";
-
-            position: absolute;
-
-            width: 400px;
-            height: 400px;
-
-            top: 100px;
-            right: -250px;
-
-            border-radius: 50%;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(143,38,53,.045),
-                    transparent 68%
-                );
-
-            pointer-events: none;
-        }
-
-        .about-container {
-            position: relative;
-
-            max-width: 1280px;
-
-            margin: 0 auto;
-
-            z-index: 2;
-        }
-
-        .about-intro {
-            position: relative;
-
-            text-align: center;
-
-            max-width: 1100px;
-
-            margin: 0 auto 45px;
-        }
-
-        .about-intro > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .about-decor {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .about-decor i {
-            position: absolute;
-            color: var(--red);
-            opacity: .10;
-            animation: aboutFloat 5.5s ease-in-out infinite;
-        }
-
-        .about-decor i:nth-child(1) {
-            top: -6px;
-            left: 4%;
-            font-size: 38px;
-            transform: rotate(-12deg);
-        }
-
-        .about-decor i:nth-child(2) {
-            top: 26px;
-            right: 6%;
+        .page-title {
+            color: var(--dark);
             font-size: 28px;
-            color: var(--amber);
-            opacity: .12;
-            animation-delay: .6s;
-        }
-
-        .about-decor i:nth-child(3) {
-            bottom: -4px;
-            left: 13%;
-            font-size: 24px;
-            opacity: .08;
-            animation-delay: 1.2s;
-        }
-
-        .about-decor i:nth-child(4) {
-            bottom: 8px;
-            right: 15%;
-            font-size: 32px;
-            color: var(--amber);
-            opacity: .10;
-            animation-delay: 1.8s;
-        }
-
-        @keyframes aboutFloat {
-            0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
-            50% { transform: translateY(-9px) rotate(var(--r, 0deg)); }
-        }
-
-        @media (max-width:650px) {
-            .about-decor { display: none; }
-        }
-
-        .feature-label {
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            margin-bottom: 16px;
-
-            padding: 8px 15px;
-
-            border-radius: 8px;
-
-            background:
-                rgba(143,38,53,.08);
-
-            color: var(--red);
-
-            font-size: 9px;
+            line-height: 1.2;
             font-weight: 800;
-
-            letter-spacing: 1.4px;
+            letter-spacing: -.7px;
+            margin-bottom: 7px;
         }
 
-        .about-heading {
-            font-family:
-                "Times New Roman",
-                Times,
-                serif;
+        .page-subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
 
-            font-size:
-                clamp(31px,3.5vw,49px);
 
-            line-height: 1.12;
+        
 
-            letter-spacing: -.8px;
+        .alert {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px 16px;
+            margin-bottom: 18px;
+            border-radius: 11px;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-            color: #292929;
+        .alert-success {
+            color: #386c49;
+            background: #eaf4ed;
+            border: 1px solid #cce5d4;
+        }
 
-            font-weight: 700;
+        .alert-error {
+            color: #8a3038;
+            background: #fae9eb;
+            border: 1px solid #edc8cd;
+        }
 
+
+        
+
+        .exam-card {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 18px;
+            padding: 25px 26px 18px;
+            background: linear-gradient(135deg, #fff, #faf8f8);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(36,32,33,.055);
+        }
+
+        .exam-card::before {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            top: -95px;
+            right: -65px;
+            background: radial-gradient(circle, rgba(143,38,53,.08), transparent 70%);
+            pointer-events: none;
+        }
+
+        .exam-card-top {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .exam-name {
+            color: var(--dark);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -.4px;
+            margin-bottom: 7px;
+        }
+
+        .exam-meta {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .5px;
             white-space: nowrap;
         }
 
-        .about-heading span {
-            color: var(--red);
-        }
-
-        /* Heading khusus di dalam "Ruang Kerja Guru" — font disamakan
-           dengan gaya brand SIPANDAI (Inter, bold, tegas), diberi
-           aksen gradient + garis bawah supaya tidak terasa polos */
-
-        .about-intro .about-heading {
-            font-family: "Inter", sans-serif;
-            font-weight: 800;
-            letter-spacing: -1.3px;
-            font-size: clamp(28px, 3.8vw, 46px);
-            white-space: normal;
-        }
-
-        .about-intro .about-heading span {
-            position: relative;
-            display: inline-block;
-            background: linear-gradient(120deg, var(--red) 0%, #c0485a 55%, var(--amber) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .about-subtitle {
-            max-width: 540px;
-            margin: 16px auto 0;
-            font-size: 12.5px;
-            line-height: 1.85;
-            color: var(--muted);
-        }
-
-        .about-divider {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .about-divider span {
-            width: 38px;
-            height: 1px;
-            background: rgba(70,60,60,.18);
-        }
-
-        .about-divider i {
-            width: 26px;
-            height: 26px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .status-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: rgba(143,38,53,.08);
-            color: var(--red);
-            font-size: 10px;
+            background: currentColor;
         }
 
-        @media (max-width:650px) {
-            .about-intro .about-heading {
-                font-size: clamp(24px, 6vw, 34px);
-                letter-spacing: -.6px;
-            }
+        .status-draft,
+        .status-menunggu,
+        .status-revisi { color: #8a6a20; background: #fbf3da; }
 
-            .about-subtitle {
-                font-size: 12px;
-                padding: 0 6px;
-            }
-        }
+        .status-aktif,
+        .status-active { color: #39724b; background: #e7f3ea; }
 
-        /* =========================================================
-           FEATURE
-        ========================================================= */
+        .status-selesai { color: #676767; background: #eeeeee; }
 
-        .feature-grid {
+        .status-ditolak { color: #8a3038; background: #fae9eb; }
+
+
+        
+
+        .info-grid {
+            position: relative;
             display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 18px;
-
-            width: 100%;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            margin-top: 24px;
+            border-top: 1px solid var(--border-light);
         }
 
-        .feature-card {
-            position: relative;
+        .info-item { padding: 17px 18px 4px 0; min-width: 0; }
 
-            min-height: 290px;
-
-            display: flex;
-            flex-direction: column;
-
-            padding: 26px 27px 23px;
-
-            border-radius: 21px;
-
-            overflow: hidden;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,.78),
-                    rgba(255,255,255,.43)
-                );
-
-            border:
-                1px solid rgba(255,255,255,.82);
-
-            backdrop-filter:
-                blur(20px)
-                saturate(115%);
-
-            -webkit-backdrop-filter:
-                blur(20px)
-                saturate(115%);
-
-            box-shadow:
-                0 14px 35px rgba(55,40,40,.075),
-                inset 0 1px 0 rgba(255,255,255,.90),
-                inset 0 -1px 0 rgba(255,255,255,.28);
-
-            transition:
-                transform .45s cubic-bezier(.22,1,.36,1),
-                box-shadow .45s ease,
-                border-color .35s ease;
+        .info-item + .info-item {
+            padding-left: 18px;
+            border-left: 1px solid var(--border-light);
         }
 
-        .feature-card::before {
-            content: "";
-
-            position: absolute;
-
-            top: 0;
-            left: 25px;
-            right: 25px;
-
-            height: 1px;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255,255,255,.95),
-                    transparent
-                );
-
-            opacity: .9;
-
-            pointer-events: none;
-        }
-
-        .feature-card::after {
-            content: "";
-
-            position: absolute;
-
-            width: 180px;
-            height: 180px;
-
-            right: -100px;
-            bottom: -105px;
-
-            border-radius: 50%;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(143,38,53,.055),
-                    transparent 70%
-                );
-
-            pointer-events: none;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-6px);
-
-            border-color:
-                rgba(255,255,255,.98);
-
-            box-shadow:
-                0 22px 45px rgba(55,40,40,.11),
-                inset 0 1px 0 rgba(255,255,255,.96);
-        }
-
-        .feature-card-top {
-            position: relative;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            z-index: 3;
-
-            margin-bottom: auto;
-        }
-
-        .feature-icon {
-            width: 43px;
-            height: 43px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 13px;
-
-            background:
-                rgba(255,255,255,.58);
-
-            border:
-                1px solid rgba(255,255,255,.80);
-
-            color:
-                var(--red);
-
-            font-size: 13px;
-
-            box-shadow:
-                0 7px 18px rgba(50,35,35,.06),
-                inset 0 1px rgba(255,255,255,.9);
-
-            transition: .35s ease;
-        }
-
-        .feature-arrow {
-            width: 32px;
-            height: 32px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 50%;
-
-            background:
-                rgba(255,255,255,.35);
-
-            border:
-                1px solid rgba(255,255,255,.60);
-
-            color:
-                rgba(70,60,60,.48);
-
+        .info-label {
+            color: var(--light-muted);
             font-size: 9px;
-
-            transition: .35s ease;
-        }
-
-        .feature-card:hover .feature-icon {
-            background:
-                rgba(143,38,53,.09);
-
-            border-color:
-                rgba(143,38,53,.12);
-
-            transform:
-                translateY(-2px);
-        }
-
-        .feature-card:hover .feature-arrow {
-            background:
-                var(--red);
-
-            border-color:
-                var(--red);
-
-            color: #fff;
-
-            transform:
-                translate(2px,-2px);
-        }
-
-        .feature-card-content {
-            position: relative;
-
-            z-index: 3;
-
-            margin-top: 45px;
-        }
-
-        .feature-number {
-            display: block;
-
-            margin-bottom: 10px;
-
-            color:
-                rgba(90,75,78,.52);
-
-            font-size: 8px;
-            font-weight: 800;
-
-            letter-spacing: 1.5px;
-        }
-
-        .feature-card h3 {
-            margin-bottom: 8px;
-
-            color: #292929;
-
-            font-family:
-                "Times New Roman",
-                Times,
-                serif;
-
-            font-size: 28px;
-
-            line-height: 1;
-
             font-weight: 700;
-
-            letter-spacing: -.4px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
         }
 
-        .feature-card p {
-            max-width: 285px;
+        .info-value { color: var(--dark); font-size: 13px; font-weight: 700; }
 
-            color: #777;
-
-            font-size: 11px;
-
-            line-height: 1.75;
-        }
-
-        .feature-card-bottom {
-            position: relative;
-
-            z-index: 3;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            margin-top: 25px;
-            padding-top: 15px;
-
-            border-top:
-                1px solid rgba(70,60,60,.075);
-        }
-
-        .feature-card-bottom span {
-            font-size: 8px;
-            font-weight: 700;
-
-            color:
-                rgba(70,60,60,.43);
-
-            letter-spacing: 1.3px;
-        }
-
-        .feature-card-bottom i {
-            font-size: 9px;
-
-            color:
-                rgba(143,38,53,.52);
-
-            transition: .3s ease;
-        }
-
-        .feature-card:hover .feature-card-bottom i {
+        .info-value.code {
             color: var(--red);
-
-            transform:
-                translateX(4px);
+            font-family: monospace;
+            font-size: 14px;
+            letter-spacing: .4px;
         }
 
-        /* =========================================================
-           AKTIVITAS
-        ========================================================= */
 
-        .activity-section {
+        
+
+        .exam-actions {
             position: relative;
-
-            padding: 0 5vw 100px;
-
-            background: #e9e9e9;
-        }
-
-        .activity-container {
-            max-width: 1280px;
-
-            margin: 0 auto;
-        }
-
-        .activity-head {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-
-            flex-wrap: wrap;
-
-            gap: 14px;
-
-            margin-bottom: 24px;
-        }
-
-        .activity-head .about-heading {
-            white-space: normal;
-
-            font-size:
-                clamp(24px,2.6vw,34px);
-        }
-
-        .activity-filter {
+            margin-top: 18px;
+            padding-top: 15px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-top: 1px solid var(--border-light);
+        }
 
-            gap: 6px;
+        .exam-action-right { display: flex; align-items: center; gap: 8px; }
 
+        .exam-action-right form { margin: 0; }
+
+        .exam-action-back,
+        .exam-action-activate,
+        .exam-action-finish {
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 0 13px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+        }
+
+        .exam-action-back {
+            border: 1px solid #dededa;
+            background: transparent;
+            color: #777;
+        }
+
+        .exam-action-back:hover {
+            background: #f7f7f5;
+            border-color: #d2d2cf;
+            color: var(--dark);
+            transform: translateY(-1px);
+        }
+
+        .exam-action-activate {
+            border: 1px solid #cfe3d4;
+            background: #eef7f0;
+            color: #4e835d;
+        }
+
+        .exam-action-activate:hover {
+            background: var(--green-dark);
+            border-color: var(--green-dark);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(67,129,83,.14);
+        }
+
+        .exam-action-finish {
+            border: 1px solid var(--red);
+            background: var(--red);
+            color: #fff;
+        }
+
+        .exam-action-finish:hover {
+            background: var(--red-dark);
+            border-color: var(--red-dark);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(143,38,53,.17);
+        }
+
+
+        
+
+        .section-card {
+            background: #fff;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(36,32,33,.045);
             margin-bottom: 18px;
         }
 
-        .activity-filter button {
-            padding: 7px 14px;
-
-            border-radius: 50px;
-
-            border: 1px solid rgba(70,60,60,.12);
-
-            background: rgba(255,255,255,.55);
-
-            color: var(--muted);
-
-            font-size: 10px;
-            font-weight: 700;
-
-            letter-spacing: .3px;
-
-            cursor: pointer;
-
-            transition: .2s ease;
-        }
-
-        .activity-filter button:hover {
-            border-color: rgba(143,38,53,.3);
-
-            color: var(--red);
-        }
-
-        .activity-filter button.active {
-            background: var(--red);
-
-            border-color: var(--red);
-
-            color: #fff;
-        }
-
-        .activity-list {
-            display: flex;
-            flex-direction: column;
-
-            gap: 10px;
-        }
-
-        .activity-row {
-            display: flex;
-            align-items: center;
-
-            gap: 15px;
-
-            padding: 16px 20px;
-
-            border-radius: 15px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,.75),
-                    rgba(255,255,255,.42)
-                );
-
-            border:
-                1px solid rgba(255,255,255,.8);
-
-            border-left: 3px solid var(--red);
-
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-
-            cursor: default;
-
-            transition:
-                transform .3s ease,
-                box-shadow .3s ease;
-        }
-
-        .activity-row:hover {
-            transform: translateX(4px);
-
-            box-shadow:
-                0 10px 26px rgba(55,40,40,.08);
-        }
-
-        .activity-row .activity-icon {
-            flex-shrink: 0;
-
-            width: 36px;
-            height: 36px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 10px;
-
-            background:
-                rgba(143,38,53,.09);
-
-            color: var(--red);
-
-            font-size: 12px;
-        }
-
-        .activity-row .activity-text {
-            flex: 1;
-
-            min-width: 0;
-        }
-
-        .activity-row .activity-text strong {
-            display: block;
-
-            font-size: 12.5px;
-
-            font-weight: 700;
-
-            color: #292929;
-        }
-
-        .activity-row .activity-text span {
-            display: block;
-
-            margin-top: 3px;
-
-            font-size: 10.5px;
-
-            color: var(--muted);
-        }
-
-        .activity-row .activity-time {
-            flex-shrink: 0;
-
-            font-size: 9px;
-
-            font-weight: 700;
-
-            color: rgba(70,60,60,.45);
-
-            letter-spacing: .5px;
-
-            white-space: nowrap;
-        }
-
-        /* =========================================================
-           FOOTER
-        ========================================================= */
-
-        .site-footer {
-            padding: 26px 5vw 30px;
-
+        .section-head {
+            min-height: 74px;
+            padding: 0 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-
-            flex-wrap: wrap;
-
-            gap: 10px;
-
-            background: #e9e9e9;
-
-            border-top:
-                1px solid rgba(70,60,60,.09);
+            gap: 18px;
+            border-bottom: 1px solid var(--border-light);
+            background: #fff;
         }
 
-        .site-footer p {
-            font-size: 10.5px;
+        .section-title-wrap { display: flex; align-items: center; gap: 11px; min-width: 0; }
 
-            color: var(--muted);
-        }
-
-        .site-footer .footer-brand {
-            display: flex;
-            align-items: center;
-
-            gap: 8px;
-
-            font-size: 10.5px;
-
-            font-weight: 700;
-
-            color: var(--red);
-        }
-
-        .site-footer .footer-brand i {
-            font-size: 11px;
-        }
-
-        /* =========================================================
-           BACK TO TOP
-        ========================================================= */
-
-        .back-to-top {
-            position: fixed;
-
-            right: 26px;
-            bottom: 26px;
-
-            width: 44px;
-            height: 44px;
-
+        .section-icon {
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            border-radius: 10px;
+            background: var(--red-light);
+            color: var(--red);
+            font-size: 12px;
+        }
 
-            border-radius: 50%;
+        .section-title {
+            color: var(--dark);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: -.1px;
+        }
 
-            background: var(--red);
+        .section-count {
+            color: #a0a0a0;
+            font-size: 9px;
+            font-weight: 600;
+            margin-top: 3px;
+        }
 
-            color: #fff;
 
-            font-size: 14px;
+        
 
-            border: none;
-
+        .question-add-btn {
+            min-height: 38px;
+            padding: 0 12px 0 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #e2d0d3;
+            border-radius: 10px;
+            background: #fff;
+            color: var(--red);
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 800;
             cursor: pointer;
+            transition: background .25s ease, border-color .25s ease, color .25s ease, transform .25s ease, box-shadow .25s ease;
+            box-shadow: 0 3px 10px rgba(50,40,40,.035);
+        }
 
+        .question-add-icon {
+            width: 27px;
+            height: 27px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            background: var(--red-light);
+            color: var(--red);
+            font-size: 10px;
+            transition: background .25s ease, color .25s ease;
+        }
+
+        .question-add-btn:hover {
+            background: #fffafb;
+            border-color: #d8b8bd;
+            color: var(--red-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 7px 17px rgba(50,40,40,.07);
+        }
+
+        .question-add-btn:hover .question-add-icon {
+            background: var(--red);
+            color: #fff;
+        }
+
+
+        
+
+        .question-list { display: flex; flex-direction: column; }
+
+        .question-item {
+            padding: 21px 22px;
+            border-bottom: 1px solid var(--border-light);
+            transition: background .2s ease;
+        }
+
+        .question-item:hover { background: #fdfcfb; }
+
+        .question-item:last-child { border-bottom: none; }
+
+        .question-top { display: flex; align-items: flex-start; gap: 13px; }
+
+        .question-number {
+            width: 31px;
+            height: 31px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 9px;
+            background: #f8ebed;
+            color: var(--red);
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .question-content { min-width: 0; flex: 1; }
+
+        .question-text {
+            color: var(--dark);
+            font-size: 12px;
+            line-height: 1.7;
+            font-weight: 650;
+            margin-bottom: 13px;
+        }
+
+        .question-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            padding-top: 1px;
+        }
+
+        .btn-icon {
+            width: 31px;
+            height: 31px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 10px;
+            transition: .2s ease;
+        }
+
+        .question-actions .btn-edit {
+            border: 1px solid #dce9df;
+            background: #f1f7f2;
+            color: #538461;
+        }
+
+        .question-actions .btn-edit:hover {
+            background: #538461;
+            border-color: #538461;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(83,132,97,.12);
+        }
+
+        .question-actions .btn-delete {
+            border: 1px solid #efdadd;
+            background: #faf0f1;
+            color: #9b3b47;
+            cursor: pointer;
+        }
+
+        .question-actions .btn-delete:hover {
+            background: var(--red);
+            border-color: var(--red);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(143,38,53,.12);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-left: 0;
+        }
+
+        .option {
+            min-height: 39px;
+            padding: 9px 11px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            border: 1px solid #ececea;
+            border-radius: 8px;
+            background: #fafaf9;
+            color: #636363;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .option-letter { color: #aaa; font-weight: 800; flex-shrink: 0; }
+
+        .option.correct {
+            border-color: #cfe4d4;
+            background: #f1f8f3;
+            color: #4c7357;
+        }
+
+        .option.correct .option-letter { color: #4d875e; }
+
+        .empty-state { padding: 45px 25px; text-align: center; }
+
+        .empty-icon {
+            width: 54px;
+            height: 54px;
+            margin: 0 auto 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: #f3f3f3;
+            color: #aaa;
+            font-size: 20px;
+        }
+
+        .empty-state strong {
+            display: block;
+            color: var(--dark);
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .empty-state p { color: var(--muted); font-size: 11px; }
+
+
+        
+
+        .footer {
+            padding: 26px 0 5px;
+            text-align: center;
+            color: #aaa;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+
+
+        
+
+        .bulk-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(20,18,19,.55);
             opacity: 0;
             visibility: hidden;
-            transform: translateY(10px);
-
-            box-shadow: 0 12px 28px rgba(143,38,53,.30);
-
-            transition:
-                opacity .3s ease,
-                transform .3s ease,
-                visibility .3s ease,
-                background .2s ease;
-
-            z-index: 1000;
+            pointer-events: none;
+            transition: opacity .25s ease, visibility .25s ease;
         }
 
-        .back-to-top.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
+        .bulk-modal.show { opacity: 1; visibility: visible; pointer-events: auto; }
+
+        .bulk-modal-card {
+            width: 100%;
+            max-width: 960px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border: 1px solid #e4e4e1;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 30px 85px rgba(0,0,0,.24);
+            transform: translateY(16px) scale(.98);
+            transition: transform .3s cubic-bezier(.22,1,.36,1);
         }
 
-        .back-to-top:hover {
-            background: var(--red-dark);
+        .bulk-modal.show .bulk-modal-card { transform: translateY(0) scale(1); }
+
+        .bulk-header {
+            min-height: 76px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-light);
+            flex-shrink: 0;
         }
 
-        /* =========================================================
-           ANIMATION
-        ========================================================= */
+        .bulk-header-left { display: flex; align-items: center; gap: 11px; }
 
-        .reveal {
-            opacity: 0;
-
-            transform:
-                translateY(22px);
-
-            transition:
-                opacity .8s ease,
-                transform .8s cubic-bezier(.22,1,.36,1);
+        .bulk-icon {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--red-light);
+            color: var(--red);
+            font-size: 13px;
         }
 
-        .reveal.active {
-            opacity: 1;
+        .bulk-heading { display: flex; flex-direction: column; gap: 3px; }
 
-            transform:
-                translateY(0);
+        .bulk-heading strong { color: var(--dark); font-size: 13px; font-weight: 800; }
+
+        .bulk-heading span { color: var(--muted); font-size: 9px; font-weight: 500; }
+
+        .bulk-close {
+            width: 33px;
+            height: 33px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e4e4e1;
+            border-radius: 9px;
+            background: #fafaf8;
+            color: #888;
+            cursor: pointer;
+            transition: .2s ease;
         }
 
-        .feature-card:nth-child(2) {
-            transition-delay: .08s;
+        .bulk-close:hover {
+            background: var(--red-light);
+            color: var(--red);
+            border-color: #e6c6cc;
         }
 
-        .feature-card:nth-child(3) {
-            transition-delay: .16s;
+        .bulk-toolbar {
+            min-height: 65px;
+            padding: 13px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            background: #fafaf8;
+            border-bottom: 1px solid var(--border-light);
+            flex-shrink: 0;
         }
 
-        /* =========================================================
-           RESPONSIVE
-        ========================================================= */
+        .bulk-toolbar-left { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
 
-        @media (max-width:1100px) {
+        .bulk-toolbar-label { color: var(--dark); font-size: 10px; font-weight: 800; }
 
-            .welcome-hero {
-                padding-left: 6vw;
-                padding-right: 6vw;
-            }
-
-            .about-section {
-                padding-left: 5vw;
-                padding-right: 5vw;
-            }
-
-            .feature-card {
-                min-height: 280px;
-            }
+        .bulk-count-input {
+            width: 72px;
+            height: 36px;
+            padding: 0 9px;
+            text-align: center;
+            border: 1px solid #dcdcd9;
+            border-radius: 8px;
+            background: #fff;
+            color: var(--dark);
+            outline: none;
+            font-size: 10px;
+            font-weight: 700;
         }
 
-        @media (max-width:900px) {
-
-            body.sidebar-open .main {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            body.sidebar-open .topbar {
-                left: 0;
-                width: 100%;
-            }
-
-            .welcome-hero {
-                min-height: 600px;
-
-                padding:
-                    105px 7vw 90px;
-            }
-
-            .about-section {
-                padding:
-                    70px 7vw 90px;
-            }
-
-            .about-intro {
-                margin-bottom: 38px;
-            }
-
-            .about-heading {
-                font-size: 40px;
-
-                white-space: normal;
-            }
-
-            .feature-grid {
-                grid-template-columns:
-                    1fr 1fr;
-
-                gap: 14px;
-            }
-
-            .feature-card {
-                min-height: 280px;
-            }
-
-            .feature-card:last-child {
-                grid-column: 1 / -1;
-
-                min-height: 270px;
-            }
-
-            .stats-grid {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
+        .bulk-count-input:focus {
+            border-color: #c9959a;
+            box-shadow: 0 0 0 3px rgba(143,38,53,.06);
         }
 
-        @media (max-width:650px) {
+        .bulk-generate {
+            height: 36px;
+            padding: 0 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border: 1px solid var(--red);
+            border-radius: 8px;
+            background: var(--red);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s ease;
+        }
 
-            :root {
-                --sidebar-width: 270px;
+        .bulk-generate:hover { background: var(--red-dark); transform: translateY(-1px); }
+
+        .bulk-note { color: #999; font-size: 9px; line-height: 1.4; }
+
+        .bulk-body {
+            flex: 1;
+            min-height: 0;
+            padding: 18px 22px;
+            overflow-y: auto;
+            background: #f6f6f4;
+        }
+
+        .bulk-body::-webkit-scrollbar { width: 5px; }
+
+        .bulk-body::-webkit-scrollbar-thumb { background: #cfcfcb; border-radius: 10px; }
+
+        .bulk-list { display: flex; flex-direction: column; gap: 13px; }
+
+        .bulk-question {
+            padding: 17px;
+            background: #fff;
+            border: 1px solid #e5e5e2;
+            border-radius: 13px;
+        }
+
+        .bulk-question-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 9px;
+            margin-bottom: 13px;
+        }
+
+        .bulk-question-head-left { display: flex; align-items: center; gap: 9px; }
+
+        .bulk-question-number {
+            width: 29px;
+            height: 29px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: var(--red-light);
+            color: var(--red);
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .bulk-question-title { color: var(--dark); font-size: 11px; font-weight: 800; }
+
+        .bulk-question-remove {
+            width: 29px;
+            height: 29px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid #efdadd;
+            border-radius: 8px;
+            background: #faf0f1;
+            color: #9b3b47;
+            font-size: 10px;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .bulk-question-remove:hover {
+            background: var(--red);
+            border-color: var(--red);
+            color: #fff;
+        }
+
+        .bulk-grid {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 10px;
+        }
+
+        .bulk-field { display: flex; flex-direction: column; gap: 6px; }
+
+        .bulk-field.full { grid-column: 1 / -1; }
+
+        .bulk-field label { color: #777; font-size: 8px; font-weight: 700; }
+
+        .bulk-input,
+        .bulk-textarea,
+        .bulk-select {
+            width: 100%;
+            border: 1px solid #dededb;
+            border-radius: 8px;
+            background: #fafaf8;
+            color: var(--dark);
+            outline: none;
+            font-family: inherit;
+            font-size: 10px;
+            transition: .2s ease;
+        }
+
+        .bulk-input,
+        .bulk-select { height: 38px; padding: 0 10px; }
+
+        .bulk-textarea {
+            min-height: 72px;
+            padding: 10px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .bulk-input:focus,
+        .bulk-textarea:focus,
+        .bulk-select:focus {
+            background: #fff;
+            border-color: #c9959a;
+            box-shadow: 0 0 0 3px rgba(143,38,53,.06);
+        }
+
+        .option-input-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .option-input-row { display: flex; align-items: center; gap: 10px; }
+
+        .option-input-letter {
+            width: 16px;
+            flex-shrink: 0;
+            color: var(--light-muted);
+            font-size: 11px;
+            font-weight: 800;
+            text-align: left;
+        }
+
+        .answer-choice-group { display: flex; gap: 8px; }
+
+        .answer-choice-btn {
+            flex: none;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #dededb;
+            border-radius: 8px;
+            background: #fafaf8;
+            color: var(--dark);
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .answer-choice-btn:hover { background: #fff; border-color: #c9959a; }
+
+        .answer-choice-btn.selected {
+            background: var(--green-dark);
+            border-color: var(--green-dark);
+            color: #fff;
+        }
+
+        .bulk-footer {
+            min-height: 68px;
+            padding: 14px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            border-top: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+
+        .bulk-footer-count { color: var(--muted); font-size: 10px; font-weight: 700; }
+
+        .bulk-footer-right { display: flex; align-items: center; gap: 8px; }
+
+        .bulk-btn-cancel,
+        .bulk-btn-save {
+            min-height: 38px;
+            padding: 0 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .bulk-btn-cancel { border: 1px solid #d9d9d6; background: #fff; color: #666; }
+
+        .bulk-btn-cancel:hover { background: #f5f5f3; }
+
+        .bulk-btn-save {
+            border: 1px solid var(--red);
+            background: var(--red);
+            color: #fff;
+            box-shadow: 0 5px 14px rgba(143,38,53,.14);
+        }
+
+        .bulk-btn-save:hover { background: var(--red-dark); transform: translateY(-1px); }
+
+        .bulk-btn-save:disabled { opacity: .65; cursor: wait; transform: none; }
+
+
+        
+
+        
+        @media (max-width: 1200px) {
+
+            body.sidebar-open .profile-info { display: none; }
+
+        }
+
+
+        @media (max-width: 1100px) {
+
+            .content { max-width: 100%; }
+
+            .info-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+
+            .info-item:nth-child(3) {
+                padding-left: 0;
+                border-left: none;
+                border-top: 1px solid var(--border-light);
             }
 
-            .topbar {
-                padding: 0 20px;
-            }
+            .info-item:nth-child(4) { border-top: 1px solid var(--border-light); }
 
-            .profile-info {
-                display: none;
-            }
+        }
 
-            .topbar-right {
-                gap: 8px;
-            }
 
-            .navbar-logo {
-                width: 32px;
-                height: 32px;
-            }
+        @media (max-width: 900px) {
 
-            .welcome-hero {
-                min-height: 620px;
+            body.sidebar-open .main { margin-left: 0; width: 100%; }
 
-                padding:
-                    105px 25px 100px;
+            body.sidebar-open .topbar { left: 0; width: 100%; }
 
-                background-position:
-                    62% center;
-            }
+            .topbar { padding: 0 20px; }
 
-            .welcome-hero::before {
-                inset: 0;
+            .profile-info { display: none; }
 
-                height: auto;
+            .content { padding-left: 20px; padding-right: 20px; }
 
-                background:
-                    linear-gradient(
-                        180deg,
-                        rgba(25,24,24,.30),
-                        transparent 25%
-                    ),
+        }
 
-                    linear-gradient(
-                        90deg,
-                        rgba(25,24,24,.38),
-                        rgba(25,24,24,.12)
-                    );
-            }
 
-            .welcome-title {
-                font-size: 43px;
+        
+        @media (max-width: 700px) {
 
-                letter-spacing: -2.4px;
-            }
+            .navbar-logo-link { display: none; }
 
-            .welcome-description {
-                font-size: 13px;
+        }
 
-                max-width: 350px;
-            }
 
-            .about-section {
-                padding:
-                    60px 20px 75px;
-            }
+        
+        @media (max-width: 640px) {
 
-            .about-intro {
-                margin-bottom: 32px;
-            }
+            .crumb-mid { display: none; }
 
-            .feature-label {
-                margin-bottom: 13px;
-            }
+        }
 
-            .about-heading {
-                font-size: 32px;
 
-                letter-spacing: -.4px;
+        @media (max-width: 760px) {
 
-                white-space: normal;
-            }
+            .page-header { flex-direction: column; }
 
-            .feature-grid {
-                grid-template-columns: 1fr;
+            .exam-card-top { flex-direction: column; }
 
-                gap: 13px;
-            }
+            .options-grid { grid-template-columns: 1fr; }
 
-            .feature-card,
-            .feature-card:last-child {
-                grid-column: auto;
+            .question-top { position: relative; }
 
-                min-height: 285px;
-            }
+            .question-actions { margin-left: auto; }
 
-            .feature-card {
-                padding:
-                    24px 24px 21px;
-
-                border-radius: 19px;
-            }
-
-            .feature-card-content {
-                margin-top: 38px;
-            }
-
-            .feature-card h3 {
-                font-size: 25px;
-            }
-
-            .stats-section {
-                margin: -50px 20px 0;
-            }
-
-            .stats-grid {
-                gap: 10px;
-            }
-
-            .stat-card {
-                padding: 14px 15px;
-            }
-
-            .stat-body strong {
-                font-size: 18px;
-            }
-
-            .activity-section {
-                padding: 0 20px 80px;
-            }
-
-            .activity-row {
-                flex-wrap: wrap;
-
-                padding: 14px 15px;
-            }
-
-            .activity-row .activity-time {
-                margin-top: 2px;
-                margin-left: 51px;
-            }
-
-            .notification-panel {
-                width: 260px;
-
-                right: -60px;
-            }
-
-            .site-footer {
-                padding: 22px 20px 26px;
-
-                flex-direction: column;
+            .section-head {
                 align-items: flex-start;
-            }
-        }
-
-        @media (max-width:420px) {
-
-            .sidebar {
-                width: 280px;
-            }
-
-            .welcome-title {
-                font-size: 39px;
-            }
-
-            .navbar-title {
-                display: none;
-            }
-
-            .welcome-hero {
-                padding-left: 22px;
-                padding-right: 22px;
-            }
-
-            .about-heading {
-                font-size: 30px;
-            }
-
-            .feature-card,
-            .feature-card:last-child {
-                min-height: 280px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .welcome-actions {
                 flex-direction: column;
-                align-items: stretch;
+                padding: 16px;
             }
 
-            .notification-panel {
-                width: 230px;
+            .question-add-btn { width: 100%; }
 
-                right: -90px;
-            }
+            .exam-actions { align-items: stretch; flex-direction: column; }
+
+            .exam-action-right { width: 100%; }
+
+            .exam-action-right form { width: 100%; }
+
+            .exam-action-back,
+            .exam-action-activate,
+            .exam-action-finish { width: 100%; }
+
+            .bulk-grid { grid-template-columns: 1fr; }
+
+            .bulk-field.full { grid-column: auto; }
+
+            .bulk-toolbar { align-items: flex-start; flex-direction: column; }
+
+            .bulk-footer { flex-direction: column; align-items: stretch; }
+
         }
 
-        @media (prefers-reduced-motion:reduce) {
 
-            *,
-            *::before,
-            *::after {
-                animation-duration: .01ms !important;
-                transition-duration: .01ms !important;
-                scroll-behavior: auto !important;
+        @media (max-width: 650px) {
+
+            .sidebar { width: 270px; }
+
+            .topbar { padding: 0 20px; }
+
+            .navbar-logo { width: 32px; height: 32px; }
+
+            .navbar-title-sub { font-size: 7px; }
+
+            .notification { width: 35px; height: 35px; }
+
+            .content { padding: 86px 16px 30px; }
+
+            .page-title { font-size: 23px; }
+
+            .exam-card { padding: 20px; }
+
+            .info-grid { grid-template-columns: 1fr; }
+
+            .info-item,
+            .info-item + .info-item {
+                padding-left: 0;
+                border-left: none;
+                border-top: 1px solid var(--border-light);
             }
 
-            .reveal {
-                opacity: 1;
-                transform: none;
-            }
+            .info-item:first-child { border-top: none; }
+
+            .section-head { padding: 16px; }
+
+            .question-item { padding: 17px; }
+
+            .bulk-modal { padding: 10px; }
+
+            .bulk-modal-card { max-height: 94vh; border-radius: 15px; }
+
+            .bulk-header,
+            .bulk-toolbar,
+            .bulk-body,
+            .bulk-footer { padding-left: 16px; padding-right: 16px; }
+
+            .bulk-btn-cancel,
+            .bulk-btn-save { width: 100%; }
+
         }
 
+
+        @media (max-width: 500px) {
+
+            .topbar-left { gap: 9px; }
+
+            .navbar-home-btn { width: 36px; height: 36px; }
+
+            .topbar-right { gap: 8px; }
+
+            .profile { display: none; }
+
+            .breadcrumb,
+            .crumb { gap: 7px; }
+
+            .breadcrumb-root { font-size: 13px; }
+
+            .breadcrumb-current {
+                padding: 5px 9px 5px 8px;
+                font-size: 8.5px;
+                letter-spacing: .8px;
+            }
+
+            .breadcrumb-current span { max-width: 150px; }
+
+        }
+
+
+        @media (max-width: 420px) {
+
+            .sidebar { width: 280px; }
+
+            .breadcrumb-root { font-size: 12px; }
+
+            .navbar-title-sub { font-size: 6px; }
+
+            .topbar { padding: 0 14px; }
+
+        }
+
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .breadcrumb-root::after,
+            .breadcrumb-sep,
+            .breadcrumb-link,
+            .breadcrumb-current,
+            .navbar-logo-link { transition: none; }
+
+        }
     </style>
 </head>
 
-
 <body>
 
-@php
-    /*
-    |--------------------------------------------------------------------------
-    | DATA DASHBOARD SIPANDAI
-    |--------------------------------------------------------------------------
-    | Semua angka di bawah mengambil data dari sistem sekarang:
-    |
-    | Exam  = data ujian
-    | User  = akun siswa/guru
-    | Result = hasil ujian
-    |
-    | Semua data ujian dan hasil dibatasi berdasarkan guru yang sedang login.
-    */
 
-    $guruLogin = auth()->user();
+    
 
-    /*
-    |--------------------------------------------------------------------------
-    | QUERY DATA UTAMA
-    |--------------------------------------------------------------------------
-    */
+    <aside class="sidebar" id="sidebar">
 
-    $ujianGuru = \App\Models\Exam::where('guru_id', $guruLogin->id);
+        <div class="sidebar-header">
 
-    /*
-    |--------------------------------------------------------------------------
-    | UJIAN AKTIF
-    |--------------------------------------------------------------------------
-    */
+            <div class="sidebar-brand">
 
-    $statUjianAktif = (clone $ujianGuru)
-        ->where('status', 'aktif')
-        ->count();
+                <img
+                    src="{{ asset('images/logo.jpg') }}"
+                    alt="Logo SMKN 2 Kota Kediri"
+                    class="sidebar-logo">
 
-    /*
-    |--------------------------------------------------------------------------
-    | SISWA TERDAFTAR
-    |--------------------------------------------------------------------------
-    | Siswa adalah seluruh User dengan role siswa.
-    */
-
-    $statSiswa = \App\Models\User::where('role', 'siswa')->count();
-
-    /*
-    |--------------------------------------------------------------------------
-    | UJIAN SELESAI
-    |--------------------------------------------------------------------------
-    */
-
-    $statSelesai = (clone $ujianGuru)
-        ->where('status', 'selesai')
-        ->count();
-
-    /*
-    |--------------------------------------------------------------------------
-    | RATA-RATA NILAI
-    |--------------------------------------------------------------------------
-    | Hanya Result yang berasal dari ujian milik guru yang sedang login.
-    */
-
-    $statRata = \App\Models\Result::whereHas('exam', function ($query) use ($guruLogin) {
-            $query->where('guru_id', $guruLogin->id);
-        })
-        ->avg('nilai');
-
-    $statRata = $statRata !== null
-        ? round((float) $statRata, 2)
-        : 0;
-
-    /*
-    |--------------------------------------------------------------------------
-    | AKTIVITAS TERBARU
-    |--------------------------------------------------------------------------
-    | Mengambil aktivitas nyata:
-    | 1. Hasil siswa yang baru masuk
-    | 2. Ujian yang baru dibuat
-    |
-    | Tidak ada lagi data dummy/fallback palsu.
-    */
-
-    $aktivitasHasil = \App\Models\Result::with(['exam', 'siswa'])
-        ->whereHas('exam', function ($query) use ($guruLogin) {
-            $query->where('guru_id', $guruLogin->id);
-        })
-        ->latest('submitted_at')
-        ->take(6)
-        ->get();
-
-    $aktivitasUjian = \App\Models\Exam::where('guru_id', $guruLogin->id)
-        ->latest()
-        ->take(6)
-        ->get();
-
-    $activities = collect();
-
-    foreach ($aktivitasHasil as $hasil) {
-
-        $namaSiswa = $hasil->siswa->name ?? 'Siswa';
-
-        $namaUjian = $hasil->exam->nama_ujian ?? 'Ujian';
-
-        $nilai = number_format(
-            (float) ($hasil->nilai ?? 0),
-            2,
-            ',',
-            '.'
-        );
-
-        $activities->push([
-            'created_at' => $hasil->submitted_at ?? $hasil->created_at,
-            'icon' => 'fa-solid fa-clipboard-check',
-            'title' => $namaSiswa . ' menyelesaikan ujian',
-            'desc' => $namaUjian . ' • Nilai ' . $nilai,
-            'time' => $hasil->submitted_at
-                ? \Carbon\Carbon::parse($hasil->submitted_at)->locale('id')->diffForHumans()
-                : 'Baru saja',
-        ]);
-    }
-
-    foreach ($aktivitasUjian as $ujian) {
-
-        $statusUjian = strtolower((string) $ujian->status);
-
-        if ($statusUjian === 'aktif') {
-            $iconUjian = 'fa-solid fa-circle-play';
-            $deskripsiUjian = 'Ujian sedang aktif dan dapat dikerjakan siswa.';
-        } elseif ($statusUjian === 'selesai') {
-            $iconUjian = 'fa-solid fa-circle-check';
-            $deskripsiUjian = 'Ujian telah selesai.';
-        } else {
-            $iconUjian = 'fa-solid fa-calendar-check';
-            $deskripsiUjian = 'Ujian berhasil dibuat di SIPANDAI.';
-        }
-
-        $activities->push([
-            'created_at' => $ujian->created_at,
-            'icon' => $iconUjian,
-            'title' => 'Ujian "' . ($ujian->nama_ujian ?? 'Ujian') . '"',
-            'desc' => $deskripsiUjian,
-            'time' => $ujian->created_at
-                ? $ujian->created_at->locale('id')->diffForHumans()
-                : 'Baru saja',
-        ]);
-    }
-
-    $activities = $activities
-        ->sortByDesc(function ($item) {
-            return $item['created_at']
-                ? \Carbon\Carbon::parse($item['created_at'])->timestamp
-                : 0;
-        })
-        ->take(5)
-        ->values();
-
-@endphp
-
-
-<!-- =========================================================
-     SIDEBAR
-========================================================= -->
-
-<aside class="sidebar" id="sidebar">
-
-    <div class="sidebar-header">
-
-        <div class="sidebar-brand">
-
-            <img
-                src="{{ asset('images/logo.jpg') }}"
-                alt="Logo SMKN 2 Kota Kediri"
-                class="sidebar-logo"
-            >
-
-            <div class="sidebar-brand-text">
-
-                <strong>
-                    SIPANDAI
-                </strong>
-
-                <span>
-                    SMKN 2 KOTA KEDIRI
-                </span>
-
-            </div>
-
-        </div>
-
-        <button
-            type="button"
-            class="close-sidebar"
-            id="closeSidebar"
-            aria-label="Tutup menu"
-        >
-
-            <i class="fa-solid fa-xmark"></i>
-
-        </button>
-
-    </div>
-
-
-    <div class="sidebar-content">
-
-        <div class="sidebar-label">
-            MENU UTAMA
-        </div>
-
-
-        <nav class="sidebar-menu">
-
-            <a
-                href="{{ route('guru.dashboard') }}"
-                class="menu-item active"
-            >
-
-                <i class="fa-solid fa-house"></i>
-
-                <span>
-                    Dashboard
-                </span>
-
-            </a>
-
-
-            <a
-                href="{{ route('guru.exams.index') }}"
-                class="menu-item"
-            >
-
-                <i class="fa-solid fa-clipboard-list"></i>
-
-                <span>
-                    Kelola Ujian
-                </span>
-
-            </a>
-
-
-            <a
-                href="{{ route('guru.results.index') }}"
-                class="menu-item"
-            >
-
-                <i class="fa-solid fa-chart-column"></i>
-
-                <span>
-                    Hasil Ujian
-                </span>
-
-            </a>
-
-
-            <a
-                href="{{ route('guru.data-siswa') }}"
-                class="menu-item"
-            >
-
-                <i class="fa-solid fa-users"></i>
-
-                <span>
-                    Data Siswa
-                </span>
-
-            </a>
-
-        </nav>
-
-
-        <div class="sidebar-profile">
-
-            <div class="sidebar-profile-top">
-
-                <div class="avatar-wrap">
-
-                    <div class="sidebar-avatar">
-
-                        {{ strtoupper(substr($guruLogin->name ?? 'G', 0, 1)) }}
-
-                    </div>
-
-                    <span class="status-dot"></span>
-
-                </div>
-
-
-                <div class="sidebar-profile-info">
-
-                    <strong>
-                        {{ $guruLogin->name ?? 'Guru' }}
-                    </strong>
-
-                    <span>
-                        Akun Guru
-                    </span>
-
+                <div class="sidebar-brand-text">
+                    <strong>SIPANDAI</strong>
+                    <span>SMKN 2 KOTA KEDIRI</span>
                 </div>
 
             </div>
-
-
-            <form
-                method="POST"
-                action="{{ route('logout') }}"
-                style="margin:0;"
-            >
-
-                @csrf
-
-                <button
-                    type="submit"
-                    class="logout-link"
-                >
-
-                    <i class="fa-solid fa-right-from-bracket"></i>
-
-                    <span>
-                        Keluar
-                    </span>
-
-                </button>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</aside>
-
-
-<!-- OVERLAY -->
-
-<div
-    class="sidebar-overlay"
-    id="sidebarOverlay"
-></div>
-
-
-<!-- =========================================================
-     MAIN
-========================================================= -->
-
-<main class="main">
-
-
-    <!-- =====================================================
-         TOPBAR
-    ====================================================== -->
-
-    <header class="topbar">
-
-        <div class="topbar-left">
 
             <button
                 type="button"
-                class="navbar-home-btn"
-                id="navbarHomeBtn"
-                aria-label="Buka menu"
-            >
+                class="close-sidebar"
+                id="closeSidebar"
+                aria-label="Tutup menu">
 
-                <i class="fa-solid fa-bars"></i>
+                <i class="fa-solid fa-xmark"></i>
 
             </button>
 
-
-            <img
-                src="{{ asset('images/logo.jpg') }}"
-                alt="Logo SMKN 2 Kota Kediri"
-                class="navbar-logo"
-            >
+        </div>
 
 
-            <div class="navbar-title">
+        <div class="sidebar-content">
 
-                <strong>
-                    SIPANDAI
-                </strong>
+            <div class="sidebar-label">
+                MENU UTAMA
+            </div>
 
-                <span>
-                    SISTEM UJIAN DIGITAL
-                </span>
+
+            <nav class="sidebar-menu">
+
+                <a href="{{ route('guru.dashboard') }}" class="menu-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="{{ route('guru.exams.index') }}" class="menu-item active">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span>Kelola Ujian</span>
+                </a>
+
+                <a href="{{ route('guru.results.index') }}" class="menu-item">
+                    <i class="fa-solid fa-chart-column"></i>
+                    <span>Hasil Ujian</span>
+                </a>
+
+                <a href="{{ route('guru.data-siswa') }}" class="menu-item">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Data Siswa</span>
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-profile">
+
+                <div class="sidebar-profile-top">
+
+                    <div class="sidebar-avatar">
+
+                        @auth
+                            {{ strtoupper(substr(auth()->user()->name ?? 'G', 0, 1)) }}
+                        @else
+                            G
+                        @endauth
+
+                    </div>
+
+                    <div class="sidebar-profile-info">
+
+                        <strong>
+                            @auth
+                                {{ auth()->user()->name ?? 'Guru' }}
+                            @else
+                                Guru
+                            @endauth
+                        </strong>
+
+                        <span>Akun Guru</span>
+
+                    </div>
+
+                </div>
+
+                <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+
+                    @csrf
+
+                    <button type="submit" class="logout-link">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Keluar</span>
+                    </button>
+
+                </form>
 
             </div>
 
         </div>
 
+    </aside>
 
-        <div class="topbar-right">
 
-            <div class="notification-wrap">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-                <div class="notification" id="notificationBtn">
+
+    
+
+    <main class="main">
+
+
+        
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    type="button"
+                    class="navbar-home-btn"
+                    id="navbarHomeBtn"
+                    aria-label="Buka menu">
+
+                    <i class="fa-solid fa-bars"></i>
+
+                </button>
+
+
+                
+
+                <a
+                    href="{{ route('guru.dashboard') }}"
+                    class="navbar-logo-link"
+                    aria-label="Ke Dashboard">
+
+                    <img
+                        src="{{ asset('images/logo.jpg') }}"
+                        alt="Logo SMKN 2 Kota Kediri"
+                        class="navbar-logo">
+
+                </a>
+
+
+                <div class="navbar-title">
+
+                    
+
+                    <nav class="breadcrumb" aria-label="Breadcrumb">
+
+                        <a
+                            href="{{ route('guru.dashboard') }}"
+                            class="breadcrumb-root">
+                            SIPANDAI
+                        </a>
+
+
+                        <span class="crumb crumb-mid">
+
+                            <i class="fa-solid fa-chevron-right breadcrumb-sep" aria-hidden="true"></i>
+
+                            <a
+                                href="{{ route('guru.exams.index') }}"
+                                class="breadcrumb-link">
+                                KELOLA UJIAN
+                            </a>
+
+                        </span>
+
+
+                        <span class="crumb crumb-mid">
+
+                            <i class="fa-solid fa-chevron-right breadcrumb-sep" aria-hidden="true"></i>
+
+                            <a
+                                href="{{ route('guru.exams.create') }}"
+                                class="breadcrumb-link">
+                                BUAT UJIAN
+                            </a>
+
+                        </span>
+
+
+                        <span class="crumb">
+
+                            <i class="fa-solid fa-chevron-right breadcrumb-sep" aria-hidden="true"></i>
+
+                            <a
+                                href="{{ route('guru.exams.show', $exam->id) }}"
+                                class="breadcrumb-current"
+                                aria-current="page">
+                                <span>DETAIL UJIAN</span>
+                            </a>
+
+                        </span>
+
+                    </nav>
+
+
+                    <div class="navbar-title-sub">
+                        SISTEM UJIAN DIGITAL
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <button
+                    type="button"
+                    class="notification"
+                    aria-label="Notifikasi">
 
                     <i class="fa-regular fa-bell"></i>
+
+                </button>
+
+                <div class="profile">
+
+                    <div class="profile-avatar">
+                        {{ strtoupper(substr(auth()->user()->name ?? 'G', 0, 1)) }}
+                    </div>
+
+                    <div class="profile-info">
+                        <strong>{{ auth()->user()->name ?? 'Guru' }}</strong>
+                        <span>Guru</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        
+
+        <div class="content">
+
+
+            
+
+            <div class="page-header">
+
+                <div class="page-header-left">
+
+                    <h1 class="page-title">
+                        Detail Ujian
+                    </h1>
+
+                    <p class="page-subtitle">
+                        Kelola informasi dan soal pada ujian yang telah dibuat.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            
+
+            @if(session('success'))
+
+                <div class="alert alert-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
+
+            @endif
+
+
+            
+
+            @if(session('error'))
+
+                <div class="alert alert-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+
+            @endif
+
+
+            
+
+            <section class="exam-card">
+
+                <div class="exam-card-top">
+
+                    <div>
+
+                        <h2 class="exam-name">
+                            {{ $exam->nama_ujian }}
+                        </h2>
+
+                        <p class="exam-meta">
+                            {{ $exam->mata_pelajaran }}
+                            <span>•</span>
+                            {{ $exam->kelas }}
+                        </p>
+
+                    </div>
+
+
+                    @php
+                        $statusClass = strtolower(str_replace(' ', '-', $exam->status));
+                    @endphp
+
+                    <span class="status-badge status-{{ $statusClass }}">
+                        {{ $exam->status }}
+                    </span>
 
                 </div>
 
 
-                <div class="notification-panel" id="notificationPanel">
+                <div class="info-grid">
 
-                    <div class="notification-panel-head">
-                        NOTIFIKASI TERBARU
+                    <div class="info-item">
+                        <div class="info-label">Tanggal</div>
+                        <div class="info-value">
+                            {{ $exam->tanggal_ujian->format('d M Y') }}
+                        </div>
                     </div>
 
-                    @forelse($activities as $item)
+                    <div class="info-item">
+                        <div class="info-label">Waktu</div>
+                        <div class="info-value">
+                            {{ substr($exam->jam_mulai, 0, 5) }}
+                            -
+                            {{ substr($exam->jam_selesai, 0, 5) }}
+                        </div>
+                    </div>
 
-                        <div class="notification-panel-item">
+                    <div class="info-item">
+                        <div class="info-label">Durasi</div>
+                        <div class="info-value">
+                            {{ $exam->durasi }} menit
+                        </div>
+                    </div>
 
-                            <i class="{{ $item['icon'] ?? 'fa-solid fa-bell' }}"></i>
+                    <div class="info-item">
+                        <div class="info-label">Kode Ujian</div>
+                        <div class="info-value code">
+                            {{ $exam->kode_ujian }}
+                        </div>
+                    </div>
 
-                            <div>
+                </div>
 
-                                <strong>
-                                    {{ $item['title'] ?? '' }}
-                                </strong>
 
-                                <span>
-                                    {{ $item['desc'] ?? '' }} &middot; {{ $item['time'] ?? '' }}
-                                </span>
+                
+
+                <div class="exam-actions">
+
+                    <a
+                        href="{{ route('guru.exams.edit', $exam->id) }}"
+                        class="exam-action-back">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Kembali
+
+                    </a>
+
+
+                    <div class="exam-action-right">
+
+                        @if(strtolower($exam->status) === 'draft')
+
+                            <form
+                                action="{{ route('guru.exams.activate', $exam->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('Aktifkan ujian ini sekarang?');">
+
+                                @csrf
+
+                                <button type="submit" class="exam-action-activate">
+                                    <i class="fa-solid fa-play"></i>
+                                    Aktifkan Ujian
+                                </button>
+
+                            </form>
+
+                        @elseif(strtolower($exam->status) === 'aktif')
+
+                            <form
+                                action="{{ route('guru.exams.finish', $exam->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('Yakin ingin menyelesaikan ujian ini?');">
+
+                                @csrf
+
+                                <button type="submit" class="exam-action-finish">
+                                    <i class="fa-solid fa-flag-checkered"></i>
+                                    Selesaikan Ujian
+                                </button>
+
+                            </form>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            
+
+            <section class="section-card">
+
+                <div class="section-head">
+
+                    <div class="section-title-wrap">
+
+                        <div class="section-icon">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+
+                        <div>
+                            <div class="section-title">Daftar Soal</div>
+                            <div class="section-count">
+                                {{ $exam->questions->count() }} soal
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    
+
+                    <button
+                        type="button"
+                        class="question-add-btn"
+                        onclick="openBulkQuestionModal()">
+
+                        <span class="question-add-icon">
+                            <i class="fa-solid fa-plus"></i>
+                        </span>
+
+                        <span>Tambah Soal</span>
+
+                    </button>
+
+                </div>
+
+
+                @if($exam->questions->count() > 0)
+
+                    <div class="question-list">
+
+                        @foreach($exam->questions as $index => $question)
+
+                            <div class="question-item">
+
+                                <div class="question-top">
+
+                                    <div class="question-number">
+                                        {{ $index + 1 }}
+                                    </div>
+
+                                    <div class="question-content">
+
+                                        <div class="question-text">
+                                            {{ $question->pertanyaan }}
+                                        </div>
+
+                                        <div class="options-grid">
+
+                                            <div class="option {{ $question->jawaban_benar === 'A' ? 'correct' : '' }}">
+                                                <span class="option-letter">A.</span>
+                                                <span>{{ $question->pilihan_a }}</span>
+                                            </div>
+
+                                            <div class="option {{ $question->jawaban_benar === 'B' ? 'correct' : '' }}">
+                                                <span class="option-letter">B.</span>
+                                                <span>{{ $question->pilihan_b }}</span>
+                                            </div>
+
+                                            <div class="option {{ $question->jawaban_benar === 'C' ? 'correct' : '' }}">
+                                                <span class="option-letter">C.</span>
+                                                <span>{{ $question->pilihan_c }}</span>
+                                            </div>
+
+                                            <div class="option {{ $question->jawaban_benar === 'D' ? 'correct' : '' }}">
+                                                <span class="option-letter">D.</span>
+                                                <span>{{ $question->pilihan_d }}</span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    
+
+                                    <div class="question-actions">
+
+                                        <a
+                                            href="{{ route('guru.questions.edit', [$exam->id, $question->id]) }}"
+                                            class="btn-icon btn-edit"
+                                            title="Edit soal">
+
+                                            <i class="fa-solid fa-pen"></i>
+
+                                        </a>
+
+                                        <form
+                                            action="{{ route('guru.questions.destroy', [$exam->id, $question->id]) }}"
+                                            method="POST"
+                                            style="margin: 0;"
+                                            onsubmit="return confirm('Yakin ingin menghapus soal ini?');">
+
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button
+                                                type="submit"
+                                                class="btn-icon btn-delete"
+                                                title="Hapus soal">
+
+                                                <i class="fa-solid fa-trash"></i>
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+
+                @else
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </div>
+
+                        <strong>Belum ada soal</strong>
+
+                        <p>Tambahkan soal untuk mulai melengkapi ujian ini.</p>
+
+                    </div>
+
+                @endif
+
+            </section>
+
+
+            
+
+            <footer class="footer">
+                SIPANDAI © {{ date('Y') }} · Sistem Ujian Digital
+            </footer>
+
+        </div>
+
+    </main>
+
+
+    
+
+    <div
+        class="bulk-modal"
+        id="bulkQuestionModal"
+        data-existing-count="{{ $exam->questions->count() }}"
+        data-store-url="{{ route('guru.questions.store', $exam->id, false) }}"
+        data-redirect-url="{{ route('guru.exams.show', $exam->id, false) }}">
+
+        <div class="bulk-modal-card">
+
+            <div class="bulk-header">
+
+                <div class="bulk-header-left">
+
+                    <div class="bulk-icon">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+
+                    <div class="bulk-heading">
+                        <strong>Tambah Banyak Soal</strong>
+                        <span>Isi beberapa soal sekaligus</span>
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="bulk-close"
+                    onclick="closeBulkQuestionModal()">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="bulk-toolbar">
+
+                <div class="bulk-toolbar-left">
+
+                    <span class="bulk-toolbar-label">
+                        Tambah sekaligus
+                    </span>
+
+                    <input
+                        type="number"
+                        id="bulkCount"
+                        class="bulk-count-input"
+                        placeholder="Jumlah"
+                        min="1"
+                        max="100">
+
+                    <button
+                        type="button"
+                        class="bulk-generate"
+                        onclick="generateBulkQuestions()">
+
+                        <i class="fa-solid fa-layer-group"></i>
+                        Buat Form
+
+                    </button>
+
+                </div>
+
+                <div class="bulk-note">
+                    Isi jumlah soal yang diinginkan (misal 20), lalu klik "Buat Form". Maksimal 100 soal per sesi. Klik ikon hapus di tiap soal untuk membatalkannya.
+                </div>
+
+            </div>
+
+
+            <div class="bulk-body">
+
+                <div class="bulk-list" id="bulkQuestionList">
+
+                    <div class="empty-state" id="bulkEmptyState">
+
+                        <div class="empty-icon">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </div>
+
+                        <strong>Belum ada form soal</strong>
+
+                        <p>
+                            Masukkan jumlah lalu klik "Tambah Banyak", atau klik "Tambah 1 Soal" untuk menambah satu per satu.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="bulk-footer">
+
+                <span class="bulk-footer-count" id="bulkFooterCount">
+                    0 soal siap disimpan
+                </span>
+
+                <div class="bulk-footer-right">
+
+                    <button
+                        type="button"
+                        class="bulk-btn-cancel"
+                        onclick="closeBulkQuestionModal()">
+
+                        Batal
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="bulk-btn-save"
+                        id="bulkSaveButton"
+                        onclick="saveAllBulkQuestions()">
+
+                        <i class="fa-solid fa-check"></i>
+                        <span>Simpan Semua Soal</span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    
+
+    <script>
+
+        
+
+        const sidebar = document.getElementById("sidebar");
+        const sidebarOverlay = document.getElementById("sidebarOverlay");
+        const navbarHomeBtn = document.getElementById("navbarHomeBtn");
+        const closeSidebar = document.getElementById("closeSidebar");
+
+
+        function openSidebar() {
+
+            if (!sidebar || !sidebarOverlay) {
+                return;
+            }
+
+            sidebar.classList.add("show");
+            sidebarOverlay.classList.add("show");
+            document.body.classList.add("sidebar-open");
+
+        }
+
+
+        function closeSidebarMenu() {
+
+            if (!sidebar || !sidebarOverlay) {
+                return;
+            }
+
+            sidebar.classList.remove("show");
+            sidebarOverlay.classList.remove("show");
+            document.body.classList.remove("sidebar-open");
+
+        }
+
+
+        if (navbarHomeBtn) {
+
+            navbarHomeBtn.addEventListener("click", function () {
+
+                if (sidebar && sidebar.classList.contains("show")) {
+                    closeSidebarMenu();
+                } else {
+                    openSidebar();
+                }
+
+            });
+
+        }
+
+
+        if (closeSidebar) {
+            closeSidebar.addEventListener("click", closeSidebarMenu);
+        }
+
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener("click", closeSidebarMenu);
+        }
+
+
+        document.addEventListener("keydown", function (event) {
+
+            if (event.key === "Escape") {
+
+                closeSidebarMenu();
+
+                const modal = document.getElementById("bulkQuestionModal");
+
+                if (modal && modal.classList.contains("show")) {
+                    closeBulkQuestionModal();
+                }
+
+            }
+
+        });
+
+
+        document
+            .querySelectorAll(".sidebar-menu .menu-item")
+            .forEach(function (link) {
+
+                link.addEventListener("click", function () {
+
+                    if (window.innerWidth <= 900) {
+                        closeSidebarMenu();
+                    }
+
+                });
+
+            });
+
+
+        window.addEventListener("resize", function () {
+
+            if (window.innerWidth > 900 && sidebarOverlay) {
+                sidebarOverlay.classList.remove("show");
+            }
+
+        });
+
+
+        
+
+        let bulkQuestionSeq = 0;
+
+
+        function openBulkQuestionModal() {
+
+            const modal = document.getElementById("bulkQuestionModal");
+
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.add("show");
+            document.body.classList.add("bulk-open");
+            const list = document.getElementById("bulkQuestionList");
+
+            if (list) {
+
+                list.innerHTML = "";
+                bulkQuestionSeq = 0;
+
+                renderBulkEmptyState();
+                updateBulkFooterCount();
+
+            }
+
+        }
+
+
+        function closeBulkQuestionModal() {
+
+            const modal = document.getElementById("bulkQuestionModal");
+
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove("show");
+            document.body.classList.remove("bulk-open");
+
+        }
+
+
+        function renderBulkEmptyState() {
+
+            const list = document.getElementById("bulkQuestionList");
+
+            if (!list) {
+                return;
+            }
+
+            if (list.children.length > 0) {
+                return;
+            }
+
+            const empty = document.createElement("div");
+
+            empty.className = "empty-state";
+            empty.id = "bulkEmptyState";
+
+            empty.innerHTML = `
+
+                <div class="empty-icon">
+                    <i class="fa-regular fa-file-lines"></i>
+                </div>
+
+                <strong>
+                    Belum ada form soal
+                </strong>
+
+                <p>
+                    Masukkan jumlah lalu klik "Tambah Banyak", atau klik "Tambah 1 Soal" untuk menambah satu per satu.
+                </p>
+
+            `;
+
+            list.appendChild(empty);
+
+        }
+
+
+        function removeBulkEmptyState() {
+
+            const empty = document.getElementById("bulkEmptyState");
+
+            if (empty) {
+                empty.remove();
+            }
+
+        }
+
+
+        
+
+        function buildBulkQuestionCard() {
+
+            bulkQuestionSeq += 1;
+
+            const localId = bulkQuestionSeq;
+
+            const card = document.createElement("div");
+
+            card.className = "bulk-question";
+            card.dataset.localId = localId;
+
+            card.innerHTML = `
+
+                <div class="bulk-question-head">
+
+                    <div class="bulk-question-head-left">
+
+                        <div class="bulk-question-number">
+                            #
+                        </div>
+
+                        <div class="bulk-question-title">
+                            Soal
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="bulk-question-remove"
+                        title="Hapus soal ini"
+                        onclick="removeBulkQuestion(${localId})">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+
+                </div>
+
+
+                <div class="bulk-grid">
+
+
+                    <div class="bulk-field full">
+
+                        <label>
+                            Pertanyaan
+                        </label>
+
+                        <textarea
+                            class="bulk-textarea"
+                            data-field="pertanyaan"
+                            placeholder="Tuliskan pertanyaan..."
+                            required></textarea>
+
+                    </div>
+
+
+                    <div class="bulk-field full">
+
+                        <label>
+                            Pilihan Jawaban
+                        </label>
+
+                        <div class="option-input-list">
+
+                            <div class="option-input-row">
+
+                                <span class="option-input-letter">a.</span>
+
+                                <input
+                                    type="text"
+                                    class="bulk-input"
+                                    data-field="pilihan_a"
+                                    placeholder="Jawaban A"
+                                    required>
+
+                            </div>
+
+
+                            <div class="option-input-row">
+
+                                <span class="option-input-letter">b.</span>
+
+                                <input
+                                    type="text"
+                                    class="bulk-input"
+                                    data-field="pilihan_b"
+                                    placeholder="Jawaban B"
+                                    required>
+
+                            </div>
+
+
+                            <div class="option-input-row">
+
+                                <span class="option-input-letter">c.</span>
+
+                                <input
+                                    type="text"
+                                    class="bulk-input"
+                                    data-field="pilihan_c"
+                                    placeholder="Jawaban C"
+                                    required>
+
+                            </div>
+
+
+                            <div class="option-input-row">
+
+                                <span class="option-input-letter">d.</span>
+
+                                <input
+                                    type="text"
+                                    class="bulk-input"
+                                    data-field="pilihan_d"
+                                    placeholder="Jawaban D"
+                                    required>
 
                             </div>
 
                         </div>
 
-                    @empty
+                    </div>
 
-                        <div class="notification-panel-empty">
-                            Belum ada notifikasi baru.
-                        </div>
 
-                    @endforelse
+                    <div class="bulk-field full">
 
-                </div>
+                        <label>
+                            Jawaban Benar
+                        </label>
 
-            </div>
+                        <div class="answer-choice-group" data-field="jawaban_benar">
 
-
-            <div class="profile" id="profileMenu">
-
-                <div class="profile-avatar">
-
-                    {{ strtoupper(substr($guruLogin->name ?? 'G', 0, 1)) }}
-
-                </div>
-
-
-                <div class="profile-info">
-
-                    <strong>
-                        {{ $guruLogin->name ?? 'Guru' }}
-                    </strong>
-
-                    <span>
-                        Guru
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </header>
-
-
-    <!-- =====================================================
-         HERO
-    ====================================================== -->
-
-    <section class="welcome-hero">
-
-        <div class="welcome-content reveal">
-
-            <div class="welcome-eyebrow">
-
-                <i class="fa-solid fa-graduation-cap"></i>
-
-                <span>
-                    SISTEM INFORMASI GURU
-                </span>
-
-            </div>
-
-
-            <h1 class="welcome-title">
-
-                Selamat Datang
-                <br>
-
-                di <span>SIPANDAI</span>
-
-            </h1>
-
-
-            <p class="welcome-description">
-
-                Kelola ujian dan penilaian siswa
-                dalam satu ruang digital.
-
-            </p>
-
-
-            <div class="welcome-actions">
-
-                <a
-                    href="{{ route('guru.exams.index') }}"
-                    class="welcome-button"
-                >
-
-                    Kelola Ujian
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         RINGKASAN CEPAT
-    ====================================================== -->
-
-    <section
-        class="stats-section reveal"
-        id="ringkasan"
-    >
-
-        <div class="stats-grid">
-
-            <!-- UJIAN AKTIF -->
-
-            <a
-                href="{{ route('guru.exams.index') }}"
-                class="stat-card"
-            >
-
-                <div class="stat-icon">
-                    <i class="fa-solid fa-clipboard-list"></i>
-                </div>
-
-                <div class="stat-body">
-
-                    <strong
-                        class="stat-number"
-                        data-target="{{ $statUjianAktif }}"
-                    >
-                        0
-                    </strong>
-
-                    <span>
-                        Ujian Aktif
-                    </span>
-
-                </div>
-
-            </a>
-
-
-            <!-- SISWA TERDAFTAR -->
-
-            <a
-                href="{{ route('guru.data-siswa') }}"
-                class="stat-card"
-            >
-
-                <div class="stat-icon">
-                    <i class="fa-solid fa-user-group"></i>
-                </div>
-
-                <div class="stat-body">
-
-                    <strong
-                        class="stat-number"
-                        data-target="{{ $statSiswa }}"
-                    >
-                        0
-                    </strong>
-
-                    <span>
-                        Siswa Terdaftar
-                    </span>
-
-                </div>
-
-            </a>
-
-
-            <!-- UJIAN SELESAI -->
-
-            <a
-                href="{{ route('guru.results.index') }}"
-                class="stat-card"
-            >
-
-                <div class="stat-icon">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-
-                <div class="stat-body">
-
-                    <strong
-                        class="stat-number"
-                        data-target="{{ $statSelesai }}"
-                    >
-                        0
-                    </strong>
-
-                    <span>
-                        Ujian Selesai
-                    </span>
-
-                </div>
-
-            </a>
-
-
-            <!-- RATA-RATA NILAI -->
-
-            <a
-                href="{{ route('guru.results.index') }}"
-                class="stat-card"
-            >
-
-                <div class="stat-icon">
-                    <i class="fa-solid fa-star"></i>
-                </div>
-
-                <div class="stat-body">
-
-                    <strong
-                        class="stat-number"
-                        data-target="{{ $statRata }}"
-                    >
-                        0
-                    </strong>
-
-                    <span>
-                        Rata-rata Nilai
-                    </span>
-
-                </div>
-
-            </a>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         RUANG KERJA GURU
-    ====================================================== -->
-
-    <section class="about-section">
-
-        <div class="about-container">
-
-
-            <div class="about-intro reveal">
-
-                <div class="about-decor" aria-hidden="true">
-
-                    <i class="fa-solid fa-graduation-cap"></i>
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <i class="fa-solid fa-user-group"></i>
-                    <i class="fa-solid fa-clipboard-list"></i>
-
-                </div>
-
-
-                <div class="feature-label">
-
-                    RUANG KERJA GURU
-
-                </div>
-
-
-                <h2 class="about-heading">
-
-                    Mari Mulai Hari Ini
-                    <br>
-
-                    Kelola ujian dengan mudah melalui
-                    <span>SIPANDAI</span>
-
-                </h2>
-
-
-                <p class="about-subtitle">
-
-                    Satu ruang kerja digital untuk membuat ujian, memantau
-                    hasil pengerjaan, dan mengelola data siswa — semua
-                    tanpa ribet.
-
-                </p>
-
-
-                <div class="about-divider">
-
-                    <span></span>
-
-                    <i class="fa-solid fa-graduation-cap"></i>
-
-                    <span></span>
-
-                </div>
-
-            </div>
-
-
-            <div class="feature-grid">
-
-
-                <!-- KELOLA UJIAN -->
-
-                <a
-                    href="{{ route('guru.exams.index') }}"
-                    class="feature-card reveal"
-                >
-
-                    <div class="feature-card-top">
-
-                        <div class="feature-icon">
-
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-
-                        </div>
-
-
-                        <div class="feature-arrow">
-
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            <button type="button" class="answer-choice-btn" data-value="A">A</button>
+                            <button type="button" class="answer-choice-btn" data-value="B">B</button>
+                            <button type="button" class="answer-choice-btn" data-value="C">C</button>
+                            <button type="button" class="answer-choice-btn" data-value="D">D</button>
 
                         </div>
 
                     </div>
 
-
-                    <div class="feature-card-content">
-
-                        <span class="feature-number">
-                            UJIAN DIGITAL
-                        </span>
-
-
-                        <h3>
-                            Kelola Ujian
-                        </h3>
-
-
-                        <p>
-
-                            Buat dan kelola ujian digital
-                            dengan lebih praktis.
-
-                        </p>
-
-                    </div>
-
-
-                    <div class="feature-card-bottom">
-
-                        <span>
-                            BUKA MENU
-                        </span>
-
-                        <i class="fa-solid fa-arrow-right"></i>
-
-                    </div>
-
-                </a>
-
-
-                <!-- HASIL UJIAN -->
-
-                <a
-                    href="{{ route('guru.results.index') }}"
-                    class="feature-card reveal"
-                >
-
-                    <div class="feature-card-top">
-
-                        <div class="feature-icon">
-
-                            <i class="fa-solid fa-chart-pie"></i>
-
-                        </div>
-
-
-                        <div class="feature-arrow">
-
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="feature-card-content">
-
-                        <span class="feature-number">
-                            PENILAIAN
-                        </span>
-
-
-                        <h3>
-                            Hasil Ujian
-                        </h3>
-
-
-                        <p>
-
-                            Pantau hasil pengerjaan dan
-                            nilai siswa dengan mudah.
-
-                        </p>
-
-                    </div>
-
-
-                    <div class="feature-card-bottom">
-
-                        <span>
-                            LIHAT HASIL
-                        </span>
-
-                        <i class="fa-solid fa-arrow-right"></i>
-
-                    </div>
-
-                </a>
-
-
-                <!-- DATA SISWA -->
-
-                <a
-                    href="{{ route('guru.data-siswa') }}"
-                    class="feature-card reveal"
-                >
-
-                    <div class="feature-card-top">
-
-                        <div class="feature-icon">
-
-                            <i class="fa-solid fa-user-group"></i>
-
-                        </div>
-
-
-                        <div class="feature-arrow">
-
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="feature-card-content">
-
-                        <span class="feature-number">
-                            DATA SISWA
-                        </span>
-
-
-                        <h3>
-                            Data Siswa
-                        </h3>
-
-
-                        <p>
-
-                            Akses data siswa yang
-                            terdaftar di SIPANDAI.
-
-                        </p>
-
-                    </div>
-
-
-                    <div class="feature-card-bottom">
-
-                        <span>
-                            LIHAT DATA
-                        </span>
-
-                        <i class="fa-solid fa-arrow-right"></i>
-
-                    </div>
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         AKTIVITAS TERBARU
-    ====================================================== -->
-
-    <section class="activity-section reveal">
-
-        <div class="activity-container">
-
-            <div class="activity-head">
-
-                <div>
-
-                    <div class="feature-label">
-                        RIWAYAT TERKINI
-                    </div>
-
-                    <h2 class="about-heading">
-                        Aktivitas Terbaru
-                    </h2>
-
                 </div>
 
+            `;
 
-                <!--
-                    Tombol diarahkan ke hasil ujian,
-                    karena bagian aktivitas berisi riwayat
-                    pengerjaan dan ujian.
-                -->
+            return card;
 
-                <a
-                    href="{{ route('guru.results.index') }}"
-                    class="welcome-button"
-                    style="
-                        background: var(--red);
-                        color:#fff;
-                        box-shadow:0 8px 20px rgba(143,38,53,.18);
-                    "
-                >
-                    Lihat Aktivitas
-                </a>
+        }
 
-            </div>
 
+        
 
-            <div class="activity-filter" id="activityFilter">
+        document.addEventListener("click", function (e) {
 
-                <button type="button" class="active" data-filter="all">Semua</button>
-                <button type="button" data-filter="ujian">Ujian</button>
-                <button type="button" data-filter="hasil">Hasil</button>
+            const btn = e.target.closest(".answer-choice-btn");
 
-            </div>
+            if (!btn) {
+                return;
+            }
 
+            const group = btn.closest(".answer-choice-group");
 
-            <div class="activity-list" id="activityList">
+            if (!group) {
+                return;
+            }
 
-                @forelse($activities as $item)
+            group.querySelectorAll(".answer-choice-btn")
+                .forEach(b => b.classList.remove("selected"));
 
-                    <div
-                        class="activity-row"
-                        data-type="{{ str_contains($item['icon'] ?? '', 'clipboard-check') ? 'hasil' : 'ujian' }}"
-                    >
+            btn.classList.add("selected");
 
-                        <div class="activity-icon">
+            group.dataset.value = btn.dataset.value;
 
-                            <i class="{{ $item['icon'] ?? 'fa-solid fa-bell' }}"></i>
+        });
 
-                        </div>
 
+        
 
-                        <div class="activity-text">
+        function generateBulkQuestions() {
 
-                            <strong>
-                                {{ $item['title'] ?? '' }}
-                            </strong>
+            const countInput = document.getElementById("bulkCount");
+            const list = document.getElementById("bulkQuestionList");
 
-                            <span>
-                                {{ $item['desc'] ?? '' }}
-                            </span>
+            if (!countInput || !list) {
+                return;
+            }
 
-                        </div>
+            let count = parseInt(countInput.value, 10);
 
+            if (isNaN(count) || count < 1) {
 
-                        <div class="activity-time">
+                alert("Masukkan jumlah soal yang ingin dibuat (minimal 1).");
 
-                            {{ $item['time'] ?? '' }}
+                countInput.focus();
 
-                        </div>
-
-                    </div>
-
-                @empty
-
-                    <div class="activity-row">
-
-                        <div class="activity-icon">
-
-                            <i class="fa-solid fa-mug-hot"></i>
-
-                        </div>
-
-
-                        <div class="activity-text">
-
-                            <strong>
-                                Belum ada aktivitas terbaru
-                            </strong>
-
-                            <span>
-                                Aktivitas akan muncul setelah ada ujian atau siswa yang menyelesaikan ujian.
-                            </span>
-
-                        </div>
-
-
-                        <div class="activity-time">
-                            —
-                        </div>
-
-                    </div>
-
-                @endforelse
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         FOOTER
-    ====================================================== -->
-
-    <footer class="site-footer">
-
-        <p>
-
-            &copy; {{ date('Y') }}
-            SIPANDAI &mdash;
-            SMKN 2 Kota Kediri.
-            Seluruh hak cipta dilindungi.
-
-        </p>
-
-
-        <div class="footer-brand">
-
-            <i class="fa-solid fa-graduation-cap"></i>
-
-            <span>
-                Sistem Ujian Digital
-            </span>
-
-        </div>
-
-    </footer>
-
-</main>
-
-
-<!-- BACK TO TOP -->
-
-<button
-    type="button"
-    class="back-to-top"
-    id="backToTop"
-    aria-label="Kembali ke atas"
->
-    <i class="fa-solid fa-arrow-up"></i>
-</button>
-
-
-<!-- =========================================================
-     JAVASCRIPT
-========================================================= -->
-
-<script>
-
-    const sidebar =
-        document.getElementById("sidebar");
-
-    const sidebarOverlay =
-        document.getElementById("sidebarOverlay");
-
-    const navbarHomeBtn =
-        document.getElementById("navbarHomeBtn");
-
-    const closeSidebar =
-        document.getElementById("closeSidebar");
-
-
-    function openSidebar() {
-
-        sidebar.classList.add("show");
-
-        sidebarOverlay.classList.add("show");
-
-        document.body.classList.add("sidebar-open");
-
-    }
-
-
-    function closeSidebarMenu() {
-
-        sidebar.classList.remove("show");
-
-        sidebarOverlay.classList.remove("show");
-
-        document.body.classList.remove("sidebar-open");
-
-    }
-
-
-    navbarHomeBtn.addEventListener(
-        "click",
-        function () {
-
-            if (
-                sidebar.classList.contains("show")
-            ) {
-
-                closeSidebarMenu();
-
-            } else {
-
-                openSidebar();
+                return;
 
             }
 
-        }
-    );
+            if (count > 100) {
 
+                count = 100;
 
-    closeSidebar.addEventListener(
-        "click",
-        closeSidebarMenu
-    );
-
-
-    sidebarOverlay.addEventListener(
-        "click",
-        closeSidebarMenu
-    );
-
-
-    document.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (event.key === "Escape") {
-
-                closeSidebarMenu();
-                closeNotificationPanel();
+                countInput.value = count;
 
             }
 
+            removeBulkEmptyState();
+
+            for (let i = 0; i < count; i++) {
+
+                const card = buildBulkQuestionCard();
+
+                list.appendChild(card);
+
+            }
+
+            renumberBulkQuestions();
+            updateBulkFooterCount();
+
         }
-    );
 
 
-    const sidebarLinks =
-        document.querySelectorAll(
-            ".sidebar-menu .menu-item"
-        );
+        
 
+        function removeBulkQuestion(localId) {
 
-    sidebarLinks.forEach(
-        function (link) {
+            const list = document.getElementById("bulkQuestionList");
 
-            link.addEventListener(
-                "click",
-                function () {
+            if (!list) {
+                return;
+            }
 
-                    if (
-                        window.innerWidth <= 900
-                    ) {
-
-                        closeSidebarMenu();
-
-                    }
-
-                }
+            const card = list.querySelector(
+                `.bulk-question[data-local-id="${localId}"]`
             );
 
-        }
-    );
-
-
-    /* =========================================================
-       PANEL NOTIFIKASI
-    ========================================================= */
-
-    const notificationBtn =
-        document.getElementById("notificationBtn");
-
-    const notificationPanel =
-        document.getElementById("notificationPanel");
-
-
-    function openNotificationPanel() {
-
-        notificationPanel.classList.add("show");
-        notificationBtn.classList.add("active");
-
-    }
-
-
-    function closeNotificationPanel() {
-
-        notificationPanel.classList.remove("show");
-        notificationBtn.classList.remove("active");
-
-    }
-
-
-    notificationBtn.addEventListener(
-        "click",
-        function (event) {
-
-            event.stopPropagation();
-
-            if (
-                notificationPanel.classList.contains("show")
-            ) {
-
-                closeNotificationPanel();
-
-            } else {
-
-                openNotificationPanel();
-
+            if (card) {
+                card.remove();
             }
 
-        }
-    );
-
-
-    document.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                !notificationPanel.contains(event.target) &&
-                !notificationBtn.contains(event.target)
-            ) {
-
-                closeNotificationPanel();
-
+            if (list.children.length === 0) {
+                renderBulkEmptyState();
             }
 
+            renumberBulkQuestions();
+            updateBulkFooterCount();
+
         }
-    );
 
 
-    /* =========================================================
-       FILTER AKTIVITAS
-    ========================================================= */
+        
 
-    const activityFilterButtons =
-        document.querySelectorAll(
-            "#activityFilter button"
-        );
+        function renumberBulkQuestions() {
 
-    const activityRows =
-        document.querySelectorAll(
-            "#activityList .activity-row"
-        );
+            const modalEl = document.getElementById("bulkQuestionModal");
 
+            const existingCount = modalEl
+                ? (parseInt(modalEl.dataset.existingCount, 10) || 0)
+                : 0;
 
-    activityFilterButtons.forEach(
-        function (button) {
-
-            button.addEventListener(
-                "click",
-                function () {
-
-                    activityFilterButtons.forEach(
-                        function (btn) {
-                            btn.classList.remove("active");
-                        }
-                    );
-
-                    button.classList.add("active");
-
-                    const filter =
-                        button.dataset.filter;
-
-                    activityRows.forEach(
-                        function (row) {
-
-                            const type =
-                                row.dataset.type;
-
-                            if (
-                                filter === "all" ||
-                                !type ||
-                                type === filter
-                            ) {
-
-                                row.style.display = "";
-
-                            } else {
-
-                                row.style.display = "none";
-
-                            }
-
-                        }
-                    );
-
-                }
+            const cards = document.querySelectorAll(
+                "#bulkQuestionList .bulk-question"
             );
 
-        }
-    );
+            cards.forEach(function (card, i) {
 
+                const displayNumber = existingCount + i + 1;
 
-    /* =========================================================
-       REVEAL ANIMATION
-    ========================================================= */
+                const numberEl = card.querySelector(".bulk-question-number");
+                const titleEl = card.querySelector(".bulk-question-title");
+                const textareaEl = card.querySelector('[data-field="pertanyaan"]');
 
-    const revealElements =
-        document.querySelectorAll(".reveal");
-
-
-    if ("IntersectionObserver" in window) {
-
-        const revealObserver =
-            new IntersectionObserver(
-
-                function (entries) {
-
-                    entries.forEach(
-                        function (entry) {
-
-                            if (
-                                entry.isIntersecting
-                            ) {
-
-                                entry.target.classList.add(
-                                    "active"
-                                );
-
-                                revealObserver.unobserve(
-                                    entry.target
-                                );
-
-                            }
-
-                        }
-                    );
-
-                },
-
-                {
-                    threshold: 0.12
+                if (numberEl) {
+                    numberEl.textContent = displayNumber;
                 }
 
-            );
+                if (titleEl) {
+                    titleEl.textContent = "Soal " + displayNumber;
+                }
 
+                if (textareaEl && !textareaEl.value) {
+                    textareaEl.placeholder =
+                        "Tuliskan pertanyaan soal " + displayNumber + "...";
+                }
 
-        revealElements.forEach(
-            function (element) {
-
-                revealObserver.observe(
-                    element
-                );
-
-            }
-        );
-
-    } else {
-
-        revealElements.forEach(
-            function (element) {
-
-                element.classList.add(
-                    "active"
-                );
-
-            }
-        );
-
-    }
-
-
-    /* =========================================================
-       RESIZE SIDEBAR
-    ========================================================= */
-
-    window.addEventListener(
-        "resize",
-        function () {
-
-            if (
-                window.innerWidth > 900
-            ) {
-
-                sidebarOverlay.classList.remove(
-                    "show"
-                );
-
-            }
-
-        }
-    );
-
-
-    /* =========================================================
-       TOMBOL KEMBALI KE ATAS
-    ========================================================= */
-
-    const backToTop =
-        document.getElementById("backToTop");
-
-
-    window.addEventListener(
-        "scroll",
-        function () {
-
-            if (
-                window.scrollY > 500
-            ) {
-
-                backToTop.classList.add("show");
-
-            } else {
-
-                backToTop.classList.remove("show");
-
-            }
-
-        }
-    );
-
-
-    backToTop.addEventListener(
-        "click",
-        function () {
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth",
             });
 
         }
-    );
 
 
-    /* =========================================================
-       ANIMASI ANGKA STATISTIK
-    ========================================================= */
+        
 
-    const prefersReducedMotion =
-        window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-        ).matches;
+        function updateBulkFooterCount() {
 
+            const footerCount = document.getElementById("bulkFooterCount");
 
-    const statNumbers =
-        document.querySelectorAll(
-            ".stat-number"
-        );
+            if (!footerCount) {
+                return;
+            }
 
+            const total = document.querySelectorAll(
+                "#bulkQuestionList .bulk-question"
+            ).length;
 
-    function animateCount(element) {
-
-        const target =
-            parseFloat(
-                element.dataset.target || "0"
-            );
-
-
-        if (
-            prefersReducedMotion ||
-            !target
-        ) {
-
-            element.textContent =
-                target;
-
-            return;
+            footerCount.textContent = total + " soal siap disimpan";
 
         }
 
 
-        const duration = 1100;
+        
 
-        const start =
-            performance.now();
+        function getQuestionData(card) {
 
-
-        function tick(now) {
-
-            const progress =
-                Math.min(
-                    (now - start) / duration,
-                    1
-                );
-
-
-            const eased =
-                1 -
-                Math.pow(
-                    1 - progress,
-                    3
-                );
-
-
-            /*
-             * Nilai rata-rata boleh memiliki desimal,
-             * sedangkan jumlah ujian/siswa tetap angka bulat.
-             */
-
-            const isDecimal =
-                target % 1 !== 0;
-
-
-            if (isDecimal) {
-
-                element.textContent =
-                    (target * eased)
-                        .toFixed(2)
-                        .replace(".", ",");
-
-            } else {
-
-                element.textContent =
-                    Math.round(
-                        target * eased
-                    );
-
-            }
-
+            const pertanyaan = card.querySelector('[data-field="pertanyaan"]');
+            const opsiA = card.querySelector('[data-field="pilihan_a"]');
+            const opsiB = card.querySelector('[data-field="pilihan_b"]');
+            const opsiC = card.querySelector('[data-field="pilihan_c"]');
+            const opsiD = card.querySelector('[data-field="pilihan_d"]');
+            const jawabanBenarGroup = card.querySelector('[data-field="jawaban_benar"]');
 
             if (
-                progress < 1
+                !pertanyaan ||
+                !opsiA ||
+                !opsiB ||
+                !opsiC ||
+                !opsiD ||
+                !jawabanBenarGroup
             ) {
-
-                requestAnimationFrame(
-                    tick
-                );
-
-            } else {
-
-                if (isDecimal) {
-
-                    element.textContent =
-                        target
-                            .toFixed(2)
-                            .replace(".", ",");
-
-                } else {
-
-                    element.textContent =
-                        target;
-
-                }
-
+                return null;
             }
+
+            return {
+                pertanyaan: pertanyaan.value.trim(),
+                pilihan_a: opsiA.value.trim(),
+                pilihan_b: opsiB.value.trim(),
+                pilihan_c: opsiC.value.trim(),
+                pilihan_d: opsiD.value.trim(),
+                jawaban_benar: jawabanBenarGroup.dataset.value || ""
+            };
 
         }
 
 
-        requestAnimationFrame(tick);
+        
 
-    }
+        async function saveAllBulkQuestions() {
 
-
-    if (
-        statNumbers.length &&
-        "IntersectionObserver" in window
-    ) {
-
-        const statObserver =
-            new IntersectionObserver(
-
-                function (entries) {
-
-                    entries.forEach(
-                        function (entry) {
-
-                            if (
-                                entry.isIntersecting
-                            ) {
-
-                                animateCount(
-                                    entry.target
-                                );
-
-                                statObserver.unobserve(
-                                    entry.target
-                                );
-
-                            }
-
-                        }
-                    );
-
-                },
-
-                {
-                    threshold: 0.4
-                }
-
+            const cards = document.querySelectorAll(
+                "#bulkQuestionList .bulk-question"
             );
 
+            if (!cards.length) {
+                alert("Silakan tambah minimal 1 form soal terlebih dahulu.");
+                return;
+            }
 
-        statNumbers.forEach(
-            function (element) {
+            const questions = [];
 
-                statObserver.observe(
-                    element
+            for (let i = 0; i < cards.length; i++) {
+
+                const data = getQuestionData(cards[i]);
+
+                if (!data) {
+                    alert("Form soal nomor " + (i + 1) + " tidak ditemukan.");
+                    return;
+                }
+
+                if (
+                    !data.pertanyaan ||
+                    !data.pilihan_a ||
+                    !data.pilihan_b ||
+                    !data.pilihan_c ||
+                    !data.pilihan_d ||
+                    !data.jawaban_benar
+                ) {
+                    alert("Soal nomor " + (i + 1) + " belum lengkap.");
+                    return;
+                }
+
+                questions.push(data);
+            }
+
+            const saveButton = document.getElementById("bulkSaveButton");
+
+            if (saveButton) {
+                saveButton.disabled = true;
+                saveButton.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin"></i>' +
+                    '<span>Menyimpan ' + questions.length + ' soal...</span>';
+            }
+
+            const csrfMeta = document.querySelector(
+                'meta[name="csrf-token"]'
+            );
+
+            if (!csrfMeta) {
+                alert("CSRF token tidak ditemukan.");
+                resetBulkSaveButton();
+                return;
+            }
+
+            const csrfToken = csrfMeta.getAttribute("content");
+            const bulkModalEl = document.getElementById("bulkQuestionModal");
+            const storeUrl = bulkModalEl
+                ? bulkModalEl.dataset.storeUrl
+                : "";
+            const redirectUrl = bulkModalEl
+                ? bulkModalEl.dataset.redirectUrl
+                : "";
+
+            if (!storeUrl) {
+                alert("URL simpan soal tidak ditemukan.");
+                resetBulkSaveButton();
+                return;
+            }
+
+            try {
+
+                
+                const response = await fetch(storeUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": csrfToken,
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        _token: csrfToken,
+                        questions: questions
+                    })
+                });
+
+                if (!response.ok) {
+
+                    let message = "Gagal menyimpan soal.";
+
+                    try {
+                        const result = await response.json();
+                        if (result.message) {
+                            message = result.message;
+                        }
+                        if (result.errors) {
+                            const firstError = Object.values(result.errors)
+                                .flat()[0];
+                            if (firstError) {
+                                message = firstError;
+                            }
+                        }
+                    } catch (e) {
+                    }
+
+                    throw new Error(message);
+                }
+
+                
+                window.location.href =
+                    redirectUrl || window.location.href;
+
+            } catch (error) {
+
+                console.error("Bulk Question Error:", error);
+
+                alert(
+                    error.message ||
+                    "Terjadi kesalahan saat menyimpan soal."
                 );
 
+                resetBulkSaveButton();
             }
-        );
+        }
 
-    } else {
 
-        statNumbers.forEach(
-            animateCount
-        );
+        
 
-    }
+        function resetBulkSaveButton() {
 
-    /* =========================================================
-       AUTO-REFRESH DATA DASHBOARD (tanpa reload)
-    ========================================================= */
+            const saveButton = document.getElementById("bulkSaveButton");
 
-    const API_BASE_URL = "{{ url('/api') }}";
-    const REFRESH_INTERVAL_MS = 30000;
-
-    async function fetchDashboardApi(endpoint) {
-
-        const res = await fetch(API_BASE_URL + endpoint, {
-            method: "GET",
-            credentials: "same-origin",
-            headers: {
-                "Accept": "application/json",
-                "X-Requested-With": "XMLHttpRequest"
+            if (!saveButton) {
+                return;
             }
-        });
 
-        if (!res.ok) {
-            throw new Error("API " + endpoint + " gagal dengan status " + res.status);
-        }
+            saveButton.disabled = false;
 
-        return await res.json();
-
-    }
-
-    async function refreshDashboardData() {
-
-        try {
-
-            const [statsPayload, activitiesPayload] = await Promise.all([
-                fetchDashboardApi("/dashboard/stats"),
-                fetchDashboardApi("/dashboard/activities")
-            ]);
-
-            const stats = statsPayload.stats ?? statsPayload.data ?? statsPayload;
-            const activities = activitiesPayload.activities ?? activitiesPayload.data ?? activitiesPayload;
-
-            updateStatCards(stats);
-            updateActivityList(Array.isArray(activities) ? activities : []);
-            updateNotificationPanel(Array.isArray(activities) ? activities : []);
-
-        } catch (err) {
-
-            console.error("Gagal memuat data dashboard dari API:", err);
+            saveButton.innerHTML =
+                '<i class="fa-solid fa-check"></i>' +
+                '<span>Simpan Semua Soal</span>';
 
         }
 
-    }
 
-    function updateStatCards(stats) {
+        
 
-        if (!stats) return;
+        const bulkQuestionModal = document.getElementById("bulkQuestionModal");
 
-        const map = {
-            ujian_aktif: document.querySelector('.stat-card:nth-child(1) .stat-number'),
-            siswa_terdaftar: document.querySelector('.stat-card:nth-child(2) .stat-number'),
-            ujian_selesai: document.querySelector('.stat-card:nth-child(3) .stat-number'),
-            rata_rata_nilai: document.querySelector('.stat-card:nth-child(4) .stat-number'),
-        };
+        if (bulkQuestionModal) {
 
-        Object.entries(map).forEach(function ([key, el]) {
+            bulkQuestionModal.addEventListener("click", function (event) {
 
-            if (!el || stats[key] === undefined) return;
+                if (event.target === bulkQuestionModal) {
+                    closeBulkQuestionModal();
+                }
 
-            el.dataset.target = stats[key];
-
-            animateCount(el);
-
-        });
-
-    }
-
-    function updateActivityList(activities) {
-
-        const list = document.getElementById("activityList");
-
-        if (!list || !activities) return;
-
-        if (!activities.length) {
-
-            list.innerHTML = `
-                <div class="activity-row">
-                    <div class="activity-icon"><i class="fa-solid fa-mug-hot"></i></div>
-                    <div class="activity-text">
-                        <strong>Belum ada aktivitas terbaru</strong>
-                        <span>Aktivitas akan muncul setelah ada ujian atau siswa yang menyelesaikan ujian.</span>
-                    </div>
-                    <div class="activity-time">&mdash;</div>
-                </div>
-            `;
-
-            return;
+            });
 
         }
 
-        list.innerHTML = activities.map(function (item) {
 
-            const type = item.type === "hasil" ? "hasil" : "ujian";
+        
 
-            return `
-                <div class="activity-row" data-type="${type}">
-                    <div class="activity-icon"><i class="${item.icon}"></i></div>
-                    <div class="activity-text">
-                        <strong>${item.title}</strong>
-                        <span>${item.desc}</span>
-                    </div>
-                    <div class="activity-time">${item.time_human ?? ''}</div>
-                </div>
-            `;
+        const bulkCount = document.getElementById("bulkCount");
 
-        }).join("");
+        if (bulkCount) {
 
-        const activeFilterBtn = document.querySelector('#activityFilter button.active');
+            bulkCount.addEventListener("input", function () {
+                if (this.value === "") {
+                    return;
+                }
 
-        if (activeFilterBtn) activeFilterBtn.click();
+                let value = parseInt(this.value, 10);
 
-    }
+                if (!isNaN(value) && value > 100) {
+                    this.value = 100;
+                }
 
-    function updateNotificationPanel(activities) {
-
-        const panel = document.getElementById("notificationPanel");
-
-        if (!panel || !activities) return;
-
-        const headHtml = '<div class="notification-panel-head">NOTIFIKASI TERBARU</div>';
-
-        if (!activities.length) {
-
-            panel.innerHTML = headHtml + '<div class="notification-panel-empty">Belum ada notifikasi baru.</div>';
-
-            return;
+            });
 
         }
 
-        panel.innerHTML = headHtml + activities.map(function (item) {
-
-            return `
-                <div class="notification-panel-item">
-                    <i class="${item.icon}"></i>
-                    <div>
-                        <strong>${item.title}</strong>
-                        <span>${item.desc} &middot; ${item.time_human ?? ''}</span>
-                    </div>
-                </div>
-            `;
-
-        }).join("");
-
-    }
-
-    setInterval(refreshDashboardData, REFRESH_INTERVAL_MS);
-
-</script>
+    </script>
 
 </body>
 
