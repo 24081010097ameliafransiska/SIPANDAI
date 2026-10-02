@@ -656,7 +656,7 @@
 
                                         <label for="q{{ $question->id }}_b">
                                             <strong>B.</strong>
-                                            {{ $question->opsi_b }}
+                                            {{ $question->pilihan_b }}
                                         </label>
 
                                     </div>
@@ -674,7 +674,7 @@
 
                                         <label for="q{{ $question->id }}_c">
                                             <strong>C.</strong>
-                                            {{ $question->opsi_c }}
+                                            {{ $question->pilihan_c }}
                                         </label>
 
                                     </div>
@@ -692,7 +692,7 @@
 
                                         <label for="q{{ $question->id }}_d">
                                             <strong>D.</strong>
-                                            {{ $question->opsi_d }}
+                                            {{ $question->pilihan_d }}
                                         </label>
 
                                     </div>
