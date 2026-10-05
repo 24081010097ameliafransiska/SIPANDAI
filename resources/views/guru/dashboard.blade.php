@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $exam->nama_ujian }} - SIPANDAI</title>
+    <title>Dashboard Guru - SIPANDAI</title>
 
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2280,17 +2280,17 @@
 
                                             <div class="option {{ $question->jawaban_benar === 'B' ? 'correct' : '' }}">
                                                 <span class="option-letter">B.</span>
-                                                <span>{{ $question->pilihan_b }}</span>
+                                                <span>{{ $question->opsi_b }}</span>
                                             </div>
 
                                             <div class="option {{ $question->jawaban_benar === 'C' ? 'correct' : '' }}">
                                                 <span class="option-letter">C.</span>
-                                                <span>{{ $question->pilihan_c }}</span>
+                                                <span>{{ $question->opsi_c }}</span>
                                             </div>
 
                                             <div class="option {{ $question->jawaban_benar === 'D' ? 'correct' : '' }}">
                                                 <span class="option-letter">D.</span>
-                                                <span>{{ $question->pilihan_d }}</span>
+                                                <span>{{ $question->opsi_d }}</span>
                                             </div>
 
                                         </div>
@@ -2623,6 +2623,7 @@
 
             modal.classList.add("show");
             document.body.classList.add("bulk-open");
+
             const list = document.getElementById("bulkQuestionList");
 
             if (list) {
@@ -3053,13 +3054,14 @@
 
         async function saveAllBulkQuestions() {
 
-            const cards = document.querySelectorAll(
-                "#bulkQuestionList .bulk-question"
-            );
+            const cards = document.querySelectorAll(".bulk-question");
 
             if (!cards.length) {
+
                 alert("Silakan tambah minimal 1 form soal terlebih dahulu.");
+
                 return;
+
             }
 
             const questions = [];
@@ -3069,8 +3071,11 @@
                 const data = getQuestionData(cards[i]);
 
                 if (!data) {
+
                     alert("Form soal nomor " + (i + 1) + " tidak ditemukan.");
+
                     return;
+
                 }
 
                 if (
@@ -3081,90 +3086,98 @@
                     !data.pilihan_d ||
                     !data.jawaban_benar
                 ) {
+
                     alert("Soal nomor " + (i + 1) + " belum lengkap.");
+
                     return;
+
                 }
 
                 questions.push(data);
+
             }
 
             const saveButton = document.getElementById("bulkSaveButton");
 
             if (saveButton) {
+
                 saveButton.disabled = true;
+
                 saveButton.innerHTML =
                     '<i class="fa-solid fa-spinner fa-spin"></i>' +
-                    '<span>Menyimpan ' + questions.length + ' soal...</span>';
+                    '<span>Menyimpan...</span>';
+
             }
 
-            const csrfMeta = document.querySelector(
-                'meta[name="csrf-token"]'
-            );
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
 
             if (!csrfMeta) {
+
                 alert("CSRF token tidak ditemukan.");
+
                 resetBulkSaveButton();
+
                 return;
+
             }
 
             const csrfToken = csrfMeta.getAttribute("content");
+
             const bulkModalEl = document.getElementById("bulkQuestionModal");
-            const storeUrl = bulkModalEl
-                ? bulkModalEl.dataset.storeUrl
-                : "";
-            const redirectUrl = bulkModalEl
-                ? bulkModalEl.dataset.redirectUrl
-                : "";
+
+            const storeUrl = bulkModalEl ? bulkModalEl.dataset.storeUrl : "";
+
+            const redirectUrl = bulkModalEl ? bulkModalEl.dataset.redirectUrl : "";
 
             if (!storeUrl) {
+
                 alert("URL simpan soal tidak ditemukan.");
+
                 resetBulkSaveButton();
+
                 return;
+
             }
 
             try {
 
-                
-                const response = await fetch(storeUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                        "X-CSRF-TOKEN": csrfToken,
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    credentials: "same-origin",
-                    body: JSON.stringify({
-                        _token: csrfToken,
-                        questions: questions
-                    })
-                });
+                for (let i = 0; i < questions.length; i++) {
 
-                if (!response.ok) {
+                    const formData = new FormData();
 
-                    let message = "Gagal menyimpan soal.";
+                    formData.append("_token", csrfToken);
+                    formData.append("pertanyaan", questions[i].pertanyaan);
+                    formData.append("pilihan_a", questions[i].pilihan_a);
+                    formData.append("pilihan_b", questions[i].pilihan_b);
+                    formData.append("pilihan_c", questions[i].pilihan_c);
+                    formData.append("pilihan_d", questions[i].pilihan_d);
+                    formData.append("jawaban_benar", questions[i].jawaban_benar);
 
-                    try {
-                        const result = await response.json();
-                        if (result.message) {
-                            message = result.message;
-                        }
-                        if (result.errors) {
-                            const firstError = Object.values(result.errors)
-                                .flat()[0];
-                            if (firstError) {
-                                message = firstError;
-                            }
-                        }
-                    } catch (e) {
+                    const response = await fetch(storeUrl, {
+
+                        method: "POST",
+
+                        headers: {
+                            "Accept": "text/html,application/json",
+                            "X-CSRF-TOKEN": csrfToken,
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+
+                        body: formData
+
+                    });
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Gagal menyimpan soal nomor " + (i + 1)
+                        );
+
                     }
 
-                    throw new Error(message);
                 }
 
-                
-                window.location.href =
-                    redirectUrl || window.location.href;
+                window.location.href = redirectUrl || window.location.href;
 
             } catch (error) {
 
@@ -3176,7 +3189,9 @@
                 );
 
                 resetBulkSaveButton();
+
             }
+
         }
 
 
@@ -3223,6 +3238,7 @@
         if (bulkCount) {
 
             bulkCount.addEventListener("input", function () {
+
                 if (this.value === "") {
                     return;
                 }
