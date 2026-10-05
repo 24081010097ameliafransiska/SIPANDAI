@@ -555,7 +555,7 @@
                                             <label
                                                 for="q{{ $question->id }}_{{ strtolower($displayLetter) }}"
                                             >
-                                                <strong>{{ $displayLetter }}.</strong>
+                                               <strong class="option-letter">{{ $displayLetter }}.</strong>
                                                 {{ $optionText }}
                                             </label>
                                         </div>
@@ -668,41 +668,97 @@
         let sudahSubmit = false;
         let sedangMengirim = false;
 
-        function showQuestion(index) {
-            index = Number(index);
+       function showQuestion(index) {
+    index = Number(index);
 
-            if (
-                index < 0 ||
-                index >= questions.length
-            ) {
-                return;
+    if (
+        index < 0 ||
+        index >= questions.length
+    ) {
+        return;
+    }
+
+    currentQuestion = index;
+
+    questions.forEach(function(question, i) {
+        if (i === index) {
+            question.classList.add('active');
+
+            const options = Array.from(
+                question.querySelectorAll('.option')
+            );
+
+            const selected =
+                question.querySelector(
+                    'input[type="radio"]:checked'
+                );
+
+            const selectedOriginal =
+                selected
+                    ? selected.dataset.original
+                    : null;
+
+            for (let j = options.length - 1; j > 0; j--) {
+                const randomIndex =
+                    Math.floor(Math.random() * (j + 1));
+
+                [options[j], options[randomIndex]] =
+                    [options[randomIndex], options[j]];
             }
 
-            currentQuestion = index;
+            options.forEach(function(option, position) {
+                const letters = ['A', 'B', 'C', 'D'];
 
-            questions.forEach(function(question, i) {
-                if (i === index) {
-                    question.classList.add('active');
-                } else {
-                    question.classList.remove('active');
+                const letter =
+                    option.querySelector('.option-letter');
+
+                const input =
+                    option.querySelector('input');
+
+                if (letter) {
+                    letter.textContent =
+                        letters[position] + '.';
                 }
-            });
 
-            numberButtons.forEach(function(button, i) {
-                if (i === index) {
-                    button.classList.add('active');
-                } else {
-                    button.classList.remove('active');
+                if (input) {
+                    input.id =
+                        'q' +
+                        input.closest('.question-card')
+                            .querySelector('.question-text')
+                            .textContent
+                            .trim()
+                            .length +
+                        '_' +
+                        letters[position].toLowerCase();
+
+                    input.checked =
+                        selectedOriginal !== null &&
+                        input.dataset.original ===
+                        selectedOriginal;
                 }
+
+                question.appendChild(option);
             });
-
-            if (soalNoBadge) {
-                soalNoBadge.textContent =
-                    String(index + 1);
-            }
-
-            updateNavButtons();
+        } else {
+            question.classList.remove('active');
         }
+    });
+
+    numberButtons.forEach(function(button, i) {
+        if (i === index) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+
+    if (soalNoBadge) {
+        soalNoBadge.textContent =
+            String(index + 1);
+    }
+
+    updateNavButtons();
+}
 
         numberButtons.forEach(function(button) {
             button.addEventListener(
