@@ -368,11 +368,13 @@ class SiswaController extends Controller
             ->values();
 
         $answers = Answer::where(
-            'exam_id',
-            $exam->id
+            'attempt_id',
+            $attempt->id
         )
-            ->where('siswa_id', $siswaId)
-            ->whereIn('question_id', $questions->pluck('id'))
+            ->whereIn(
+                'question_id',
+                $questions->pluck('id')
+            )
             ->pluck('jawaban', 'question_id');
 
         return view(
@@ -468,11 +470,12 @@ class SiswaController extends Controller
 
             Answer::updateOrCreate(
                 [
-                    'exam_id' => $exam->id,
+                    'attempt_id' => $attempt->id,
                     'question_id' => $question->id,
-                    'siswa_id' => $siswaId,
                 ],
                 [
+                    'exam_id' => $exam->id,
+                    'siswa_id' => $siswaId,
                     'jawaban' => $jawabanAsli,
                 ]
             );

@@ -452,8 +452,8 @@
         }
     </style>
 </head>
-<body>
 
+<body>
     <div id="tabWarning" class="tab-warning">
         Kamu meninggalkan halaman ujian.
         <br>
@@ -477,9 +477,7 @@
 
     <main class="container">
         <div class="exam-layout">
-
             <div class="question-area">
-
                 <form
                     action="{{ route('siswa.exam.submit', $exam) }}"
                     method="POST"
@@ -488,9 +486,7 @@
                     @csrf
 
                     @if($questions->count() > 0)
-
                         <div class="question-card-wrapper">
-
                             <div class="question-topbar">
                                 <div class="soal-no">
                                     <span>SOAL NO.</span>
@@ -506,7 +502,6 @@
                                     <span class="label">
                                         Sisa Waktu
                                     </span>
-
                                     <span
                                         id="examTimer"
                                         data-durasi-menit="{{ $exam->durasi }}"
@@ -517,7 +512,6 @@
                             </div>
 
                             @foreach($questions as $index => $question)
-
                                 @php
                                     $questionOptions = $options[$question->id] ?? [
                                         'A' => 'A',
@@ -527,19 +521,21 @@
                                     ];
 
                                     $savedAnswer = $answers[$question->id] ?? null;
+
+                                    if (($attempt->attempt_number ?? 1) > 1) {
+                                        $savedAnswer = null;
+                                    }
                                 @endphp
 
                                 <div
                                     class="question-card {{ $index === 0 ? 'active' : '' }}"
                                     data-question="{{ $index }}"
                                 >
-
                                     <div class="question-text">
                                         {{ $question->pertanyaan }}
                                     </div>
 
                                     @foreach(['A', 'B', 'C', 'D'] as $displayLetter)
-
                                         @php
                                             $originalLetter = $questionOptions[$displayLetter] ?? $displayLetter;
                                             $optionField = 'pilihan_' . strtolower($originalLetter);
@@ -548,7 +544,6 @@
                                         @endphp
 
                                         <div class="option">
-
                                             <input
                                                 type="radio"
                                                 id="q{{ $question->id }}_{{ strtolower($displayLetter) }}"
@@ -563,19 +558,13 @@
                                                 <strong>{{ $displayLetter }}.</strong>
                                                 {{ $optionText }}
                                             </label>
-
                                         </div>
-
                                     @endforeach
-
                                 </div>
-
                             @endforeach
-
                         </div>
 
                         <div class="question-navigation">
-
                             <button
                                 type="button"
                                 class="nav-btn prev-btn"
@@ -593,32 +582,22 @@
                             >
                                 Soal Selanjutnya
                             </button>
-
                         </div>
-
                     @else
-
                         <div class="empty">
                             <h3>Belum Ada Soal</h3>
-
                             <p style="margin-top: 8px;">
                                 Guru belum menambahkan soal
                                 ke dalam ujian ini.
                             </p>
                         </div>
-
                     @endif
-
                 </form>
-
             </div>
 
             @if($questions->count() > 0)
-
                 <div class="right-column">
-
                     <div class="number-panel">
-
                         <h3>Nomor Soal</h3>
 
                         <p>
@@ -626,11 +605,13 @@
                         </p>
 
                         <div class="number-grid">
-
                             @foreach($questions as $index => $question)
-
                                 @php
                                     $savedAnswer = $answers[$question->id] ?? null;
+
+                                    if (($attempt->attempt_number ?? 1) > 1) {
+                                        $savedAnswer = null;
+                                    }
                                 @endphp
 
                                 <button
@@ -640,13 +621,10 @@
                                 >
                                     {{ $index + 1 }}
                                 </button>
-
                             @endforeach
-
                         </div>
 
                         <div class="legend">
-
                             <div class="legend-item">
                                 <div class="legend-box green"></div>
                                 Sudah dijawab
@@ -656,15 +634,10 @@
                                 <div class="legend-box"></div>
                                 Belum dijawab
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
-
             @endif
-
         </div>
     </main>
 
@@ -946,7 +919,6 @@
 
         const examTimerInterval =
             setInterval(function() {
-
                 if (sudahSubmit) {
                     clearInterval(
                         examTimerInterval
@@ -958,7 +930,6 @@
 
                 if (sisaDetik <= 0) {
                     sisaDetik = 0;
-
                     tampilkanTimer();
 
                     clearInterval(
@@ -973,7 +944,6 @@
                 }
 
                 tampilkanTimer();
-
             }, 1000);
 
         function autoSubmitUjian(alasan) {
@@ -1015,7 +985,6 @@
             examForm.addEventListener(
                 'submit',
                 function() {
-
                     if (
                         sudahSubmit === false
                     ) {
@@ -1029,7 +998,6 @@
                                 'Mengirim Jawaban...';
                         }
                     }
-
                 }
             );
         }
@@ -1037,7 +1005,6 @@
         document.addEventListener(
             'visibilitychange',
             function() {
-
                 if (
                     document.hidden &&
                     !sudahSubmit
@@ -1046,14 +1013,12 @@
                         'Kamu meninggalkan halaman ujian.'
                     );
                 }
-
             }
         );
 
         window.addEventListener(
             'blur',
             function() {
-
                 if (
                     !sudahSubmit &&
                     document.visibilityState ===
@@ -1063,20 +1028,17 @@
                         'Kamu meninggalkan halaman ujian.'
                     );
                 }
-
             }
         );
 
         window.addEventListener(
             'pagehide',
             function() {
-
                 if (!sudahSubmit) {
                     autoSubmitUjian(
                         'Halaman ujian ditinggalkan.'
                     );
                 }
-
             }
         );
 
@@ -1089,30 +1051,25 @@
         window.addEventListener(
             'popstate',
             function() {
-
                 if (!sudahSubmit) {
                     autoSubmitUjian(
                         'Kamu meninggalkan halaman ujian.'
                     );
                 }
-
             }
         );
 
         window.addEventListener(
             'beforeunload',
             function(event) {
-
                 if (!sudahSubmit) {
                     event.preventDefault();
                     event.returnValue = '';
                 }
-
             }
         );
 
         showQuestion(0);
     </script>
-
 </body>
 </html>

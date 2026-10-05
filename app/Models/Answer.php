@@ -10,6 +10,7 @@ class Answer extends Model
     use HasFactory;
 
     protected $fillable = [
+        'attempt_id',
         'exam_id',
         'siswa_id',
         'question_id',
@@ -22,33 +23,20 @@ class Answer extends Model
         'benar' => 'boolean',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relasi ke Ujian
-    |--------------------------------------------------------------------------
-    */
+    public function attempt()
+    {
+        return $this->belongsTo(ExamAttempt::class, 'attempt_id');
+    }
 
     public function exam()
     {
         return $this->belongsTo(Exam::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relasi ke Siswa
-    |--------------------------------------------------------------------------
-    */
-
     public function siswa()
     {
         return $this->belongsTo(User::class, 'siswa_id');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relasi ke Soal
-    |--------------------------------------------------------------------------
-    */
 
     public function question()
     {
