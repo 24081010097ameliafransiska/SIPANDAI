@@ -307,23 +307,11 @@ class SiswaController extends Controller
             $options = [];
 
             foreach ($allQuestions as $question) {
-                $originalOptions = [
-                    'A',
-                    'B',
-                    'C',
-                    'D',
-                ];
-
-                $shuffledOptions = collect($originalOptions)
-                    ->shuffle()
-                    ->values()
-                    ->toArray();
-
                 $options[$question->id] = [
-                    'A' => $shuffledOptions[0],
-                    'B' => $shuffledOptions[1],
-                    'C' => $shuffledOptions[2],
-                    'D' => $shuffledOptions[3],
+                    'A' => 'A',
+                    'B' => 'B',
+                    'C' => 'C',
+                    'D' => 'D',
                 ];
             }
 
@@ -415,8 +403,6 @@ class SiswaController extends Controller
 
         $randomizedData = $attempt->randomized_data ?? [];
 
-        $optionMapping = $randomizedData['options'] ?? [];
-
         $questionOrder = $randomizedData['question_order'] ?? [];
 
         if (!empty($questionOrder)) {
@@ -446,26 +432,23 @@ class SiswaController extends Controller
         $jumlahSalah = 0;
 
         foreach ($questions as $question) {
-            $jawabanTampilan = $request->input(
+            $jawabanAsli = $request->input(
                 'jawaban.' . $question->id
             );
 
-            $jawabanAsli = null;
-
             if (
-                $jawabanTampilan !== null &&
-                $jawabanTampilan !== '' &&
-                isset(
-                    $optionMapping[$question->id][$jawabanTampilan]
+                $jawabanAsli !== null &&
+                !in_array(
+                    strtoupper($jawabanAsli),
+                    ['A', 'B', 'C', 'D'],
+                    true
                 )
             ) {
-                $jawabanAsli =
-                    $optionMapping[$question->id][$jawabanTampilan];
-            } elseif (
-                $jawabanTampilan !== null &&
-                $jawabanTampilan !== ''
-            ) {
-                $jawabanAsli = $jawabanTampilan;
+                $jawabanAsli = null;
+            }
+
+            if ($jawabanAsli !== null) {
+                $jawabanAsli = strtoupper(trim($jawabanAsli));
             }
 
             Answer::updateOrCreate(

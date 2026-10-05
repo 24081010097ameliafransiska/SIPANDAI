@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $exam->nama_ujian }} - SIPANDAI</title>
+
     <style>
         * {
             margin: 0;
@@ -502,6 +504,7 @@
                                     <span class="label">
                                         Sisa Waktu
                                     </span>
+
                                     <span
                                         id="examTimer"
                                         data-durasi-menit="{{ $exam->durasi }}"
@@ -548,14 +551,15 @@
                                                 type="radio"
                                                 id="q{{ $question->id }}_{{ strtolower($displayLetter) }}"
                                                 name="jawaban[{{ $question->id }}]"
-                                                value="{{ $displayLetter }}"
+                                                value="{{ $originalLetter }}"
+                                                data-original="{{ $originalLetter }}"
                                                 {{ $isChecked ? 'checked' : '' }}
                                             >
 
-                                            <label
-                                                for="q{{ $question->id }}_{{ strtolower($displayLetter) }}"
-                                            >
-                                               <strong class="option-letter">{{ $displayLetter }}.</strong>
+                                            <label for="q{{ $question->id }}_{{ strtolower($displayLetter) }}">
+                                                <strong class="option-letter">
+                                                    {{ $displayLetter }}.
+                                                </strong>
                                                 {{ $optionText }}
                                             </label>
                                         </div>
@@ -586,6 +590,7 @@
                     @else
                         <div class="empty">
                             <h3>Belum Ada Soal</h3>
+
                             <p style="margin-top: 8px;">
                                 Guru belum menambahkan soal
                                 ke dalam ujian ini.
@@ -668,28 +673,13 @@
         let sudahSubmit = false;
         let sedangMengirim = false;
 
-       function showQuestion(index) {
-    index = Number(index);
-
-    if (
-        index < 0 ||
-        index >= questions.length
-    ) {
-        return;
-    }
-
-    currentQuestion = index;
-
-    questions.forEach(function(question, i) {
-        if (i === index) {
-            question.classList.add('active');
-
+        function shuffleOptions(questionCard) {
             const options = Array.from(
-                question.querySelectorAll('.option')
+                questionCard.querySelectorAll('.option')
             );
 
             const selected =
-                question.querySelector(
+                questionCard.querySelector(
                     'input[type="radio"]:checked'
                 );
 
@@ -698,67 +688,91 @@
                     ? selected.dataset.original
                     : null;
 
-            for (let j = options.length - 1; j > 0; j--) {
-                const randomIndex =
-                    Math.floor(Math.random() * (j + 1));
+            for (let i = options.length - 1; i > 0; i--) {
+                const j =
+                    Math.floor(
+                        Math.random() * (i + 1)
+                    );
 
-                [options[j], options[randomIndex]] =
-                    [options[randomIndex], options[j]];
+                [options[i], options[j]] =
+                    [options[j], options[i]];
             }
 
-            options.forEach(function(option, position) {
-                const letters = ['A', 'B', 'C', 'D'];
+            const letters = [
+                'A',
+                'B',
+                'C',
+                'D'
+            ];
+
+            options.forEach(function(option, index) {
+                const input =
+                    option.querySelector(
+                        'input[type="radio"]'
+                    );
 
                 const letter =
-                    option.querySelector('.option-letter');
-
-                const input =
-                    option.querySelector('input');
+                    option.querySelector(
+                        '.option-letter'
+                    );
 
                 if (letter) {
                     letter.textContent =
-                        letters[position] + '.';
+                        letters[index] + '.';
                 }
 
                 if (input) {
-                    input.id =
-                        'q' +
-                        input.closest('.question-card')
-                            .querySelector('.question-text')
-                            .textContent
-                            .trim()
-                            .length +
-                        '_' +
-                        letters[position].toLowerCase();
+                    input.checked = false;
 
-                    input.checked =
+                    if (
                         selectedOriginal !== null &&
                         input.dataset.original ===
-                        selectedOriginal;
+                            selectedOriginal
+                    ) {
+                        input.checked = true;
+                    }
                 }
 
-                question.appendChild(option);
+                questionCard.appendChild(option);
             });
-        } else {
-            question.classList.remove('active');
         }
-    });
 
-    numberButtons.forEach(function(button, i) {
-        if (i === index) {
-            button.classList.add('active');
-        } else {
-            button.classList.remove('active');
+        function showQuestion(index) {
+            index = Number(index);
+
+            if (
+                index < 0 ||
+                index >= questions.length
+            ) {
+                return;
+            }
+
+            currentQuestion = index;
+
+            questions.forEach(function(question, i) {
+                if (i === index) {
+                    question.classList.add('active');
+                    shuffleOptions(question);
+                } else {
+                    question.classList.remove('active');
+                }
+            });
+
+            numberButtons.forEach(function(button, i) {
+                if (i === index) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            if (soalNoBadge) {
+                soalNoBadge.textContent =
+                    String(index + 1);
+            }
+
+            updateNavButtons();
         }
-    });
-
-    if (soalNoBadge) {
-        soalNoBadge.textContent =
-            String(index + 1);
-    }
-
-    updateNavButtons();
-}
 
         numberButtons.forEach(function(button) {
             button.addEventListener(
@@ -986,6 +1000,7 @@
 
                 if (sisaDetik <= 0) {
                     sisaDetik = 0;
+
                     tampilkanTimer();
 
                     clearInterval(
@@ -1078,7 +1093,7 @@
                 if (
                     !sudahSubmit &&
                     document.visibilityState ===
-                    'hidden'
+                        'hidden'
                 ) {
                     autoSubmitUjian(
                         'Kamu meninggalkan halaman ujian.'
@@ -1128,4 +1143,5 @@
         showQuestion(0);
     </script>
 </body>
+
 </html>
