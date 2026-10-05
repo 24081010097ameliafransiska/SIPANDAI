@@ -1990,7 +1990,7 @@
                             <i class="fa-solid fa-chevron-right breadcrumb-sep" aria-hidden="true"></i>
 
                             <a
-                                href="{{ route('guru.exams.show', $exam->id) }}"
+                                href="{{ route('guru.exams.index') }}"
                                 class="breadcrumb-current"
                                 aria-current="page">
                                 <span>DETAIL UJIAN</span>
