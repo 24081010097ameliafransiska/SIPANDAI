@@ -17,10 +17,10 @@ return new class extends Migration
 
             $table->text('pertanyaan');
 
-            $table->text('pilihan_a');
-            $table->text('pilihan_b');
-            $table->text('pilihan_c');
-            $table->text('pilihan_d');
+            $table->text('opsi_a');
+            $table->text('opsi_b');
+            $table->text('opsi_c');
+            $table->text('opsi_d');
 
             $table->enum('jawaban_benar', [
                 'A',

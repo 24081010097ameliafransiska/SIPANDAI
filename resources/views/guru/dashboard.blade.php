@@ -1,3 +1,122 @@
+@if(request()->routeIs('guru.dashboard'))
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Dashboard Guru - SIPANDAI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root{--red:#8f2635;--red-dark:#741c29;--red-light:#f7e9eb;--dark:#292929;--text:#383838;--muted:#777;--bg:#f2f2f2;--white:#fff;--border:#dadada;--green:#5b9b6d;--sidebar-width:245px}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{min-height:100vh;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif}
+        a{text-decoration:none;color:inherit}
+        .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--white);border-right:1px solid var(--border);padding:25px 18px;z-index:20}
+        .brand{display:flex;align-items:center;gap:10px;padding:0 10px 28px}
+        .brand img{width:38px;height:38px;object-fit:contain;border-radius:8px}
+        .brand strong{color:var(--red);font-size:20px}
+        .menu-title{font-size:11px;color:#999;font-weight:700;margin:18px 10px 8px}
+        .menu a{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:9px;margin-bottom:5px;font-size:13px;font-weight:600}
+        .menu a:hover,.menu a.active{background:var(--red-light);color:var(--red)}
+        .menu i{width:18px;text-align:center}
+        .logout{position:absolute;left:18px;right:18px;bottom:20px}
+        .logout button{width:100%;border:0;background:#f7f7f7;padding:12px;border-radius:9px;color:#555;font-weight:600;cursor:pointer}
+        .logout button:hover{background:var(--red-light);color:var(--red)}
+        .main{margin-left:var(--sidebar-width);min-height:100vh;padding:32px}
+        .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+        .title h1{font-size:26px;color:var(--dark);margin-bottom:5px}
+        .title p{font-size:13px;color:var(--muted)}
+        .create{background:var(--red);color:white;padding:11px 17px;border-radius:9px;font-size:13px;font-weight:700}
+        .create:hover{background:var(--red-dark)}
+        .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:24px}
+        .card{background:white;border:1px solid var(--border);border-radius:14px;padding:22px}
+        .card-label{font-size:12px;color:var(--muted);margin-bottom:8px}
+        .card-value{font-size:27px;font-weight:800;color:var(--dark)}
+        .exam-box{background:white;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+        .exam-head{padding:20px 22px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+        .exam-head h2{font-size:17px}
+        .exam-list{padding:0}
+        .exam-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:18px 22px;border-bottom:1px solid #eee}
+        .exam-row:last-child{border-bottom:0}
+        .exam-name{font-weight:700;font-size:14px;margin-bottom:5px}
+        .exam-meta{font-size:12px;color:var(--muted)}
+        .badge{display:inline-block;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700}
+        .badge.active{background:#e8f4eb;color:#438153}
+        .badge.other{background:#f3f3f3;color:#777}
+        .detail{color:var(--red);font-size:12px;font-weight:700}
+        .empty{padding:45px;text-align:center;color:var(--muted);font-size:13px}
+        @media(max-width:850px){.sidebar{transform:translateX(-100%)}.main{margin-left:0;padding:20px}.cards{grid-template-columns:1fr}.exam-row{align-items:flex-start;flex-direction:column}}
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="{{ asset('images/logo.jpg') }}" alt="Logo SMKN 2 Kota Kediri">
+            <strong>SIPANDAI</strong>
+        </div>
+        <div class="menu-title">MENU UTAMA</div>
+        <nav class="menu">
+            <a href="{{ route('guru.dashboard') }}" class="active"><i class="fa-solid fa-house"></i><span>Dashboard</span></a>
+            <a href="{{ route('guru.exams.index') }}"><i class="fa-solid fa-file-pen"></i><span>Kelola Ujian</span></a>
+            <a href="{{ route('guru.exams.create') }}"><i class="fa-solid fa-plus"></i><span>Buat Ujian</span></a>
+        </nav>
+        <div class="logout">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+            </form>
+        </div>
+    </aside>
+    <main class="main">
+        <div class="top">
+            <div class="title">
+                <h1>Dashboard Guru</h1>
+                <p>Selamat datang di SIPANDAI.</p>
+            </div>
+            <a class="create" href="{{ route('guru.exams.create') }}"><i class="fa-solid fa-plus"></i> Buat Ujian</a>
+        </div>
+        @php
+            $dashboardExams = \App\Models\Exam::where('guru_id', auth()->id())->orderByDesc('tanggal_ujian')->orderByDesc('id')->get();
+            $activeCount = $dashboardExams->filter(fn($item) => strtolower(trim((string) $item->status)) === 'aktif')->count();
+        @endphp
+        <div class="cards">
+            <div class="card"><div class="card-label">Total Ujian</div><div class="card-value">{{ $dashboardExams->count() }}</div></div>
+            <div class="card"><div class="card-label">Ujian Aktif</div><div class="card-value">{{ $activeCount }}</div></div>
+            <div class="card"><div class="card-label">Guru Login</div><div class="card-value" style="font-size:17px">{{ auth()->user()->name ?? 'Guru' }}</div></div>
+        </div>
+        <section class="exam-box">
+            <div class="exam-head">
+                <h2>Daftar Ujian</h2>
+                <a class="detail" href="{{ route('guru.exams.index') }}">Lihat semua</a>
+            </div>
+            @if($dashboardExams->count())
+                <div class="exam-list">
+                    @foreach($dashboardExams as $item)
+                        @php $status = strtolower(trim((string) $item->status)); @endphp
+                        <div class="exam-row">
+                            <div>
+                                <div class="exam-name">{{ $item->nama_ujian }}</div>
+                                <div class="exam-meta">{{ $item->mata_pelajaran }} • {{ $item->kelas }} • {{ $item->tanggal_ujian ? $item->tanggal_ujian->format('d M Y') : '-' }}</div>
+                            </div>
+                            <div>
+                                <span class="badge {{ $status === 'aktif' ? 'active' : 'other' }}">{{ $item->status }}</span>
+                                <a class="detail" href="{{ route('guru.exams.show', $item->id) }}"> Detail</a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="empty">Belum ada ujian yang dibuat.</div>
+            @endif
+        </section>
+    </main>
+</body>
+</html>
+@else
 <!DOCTYPE html>
 <html lang="id">
 
@@ -3258,3 +3377,5 @@
 </body>
 
 </html>
+
+@endif
