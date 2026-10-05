@@ -62,7 +62,10 @@ class SiswaController extends Controller
         ) {
             return back()
                 ->withInput()
-                ->with('error', 'Foto absen tidak valid. Silakan ambil foto kembali.');
+                ->with(
+                    'error',
+                    'Foto absen tidak valid. Silakan ambil foto kembali.'
+                );
         }
 
         try {
@@ -81,7 +84,10 @@ class SiswaController extends Controller
             if (strlen($imageData) > 5 * 1024 * 1024) {
                 return back()
                     ->withInput()
-                    ->with('error', 'Ukuran foto terlalu besar. Silakan ambil foto kembali.');
+                    ->with(
+                        'error',
+                        'Ukuran foto terlalu besar. Silakan ambil foto kembali.'
+                    );
             }
 
             $imageInfo = @getimagesizefromstring($imageData);
@@ -119,7 +125,10 @@ class SiswaController extends Controller
         } catch (\Throwable $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Foto absen gagal diproses. Silakan ambil foto kembali.');
+                ->with(
+                    'error',
+                    'Foto absen gagal diproses. Silakan ambil foto kembali.'
+                );
         }
 
         $attempt = ExamAttempt::where('exam_id', $exam->id)
@@ -135,6 +144,7 @@ class SiswaController extends Controller
                 'status' => 'active',
                 'started_at' => now(),
                 'foto_absen' => $fotoPath,
+                'randomized_data' => null,
             ]);
 
             session([
@@ -142,7 +152,10 @@ class SiswaController extends Controller
                 'exam_attempt_id' => $newAttempt->id,
             ]);
 
-            return redirect()->route('siswa.exam', $exam->id);
+            return redirect()->route(
+                'siswa.exam',
+                $exam->id
+            );
         }
 
         if ($attempt->status === 'active') {
@@ -150,7 +163,9 @@ class SiswaController extends Controller
                 !empty($attempt->foto_absen) &&
                 Storage::disk('public')->exists($attempt->foto_absen)
             ) {
-                Storage::disk('public')->delete($attempt->foto_absen);
+                Storage::disk('public')->delete(
+                    $attempt->foto_absen
+                );
             }
 
             $attempt->update([
@@ -162,7 +177,10 @@ class SiswaController extends Controller
                 'exam_attempt_id' => $attempt->id,
             ]);
 
-            return redirect()->route('siswa.exam', $exam->id);
+            return redirect()->route(
+                'siswa.exam',
+                $exam->id
+            );
         }
 
         if ($attempt->status === 'submitted') {
@@ -205,6 +223,7 @@ class SiswaController extends Controller
                 'status' => 'active',
                 'started_at' => now(),
                 'foto_absen' => $fotoPath,
+                'randomized_data' => null,
             ]);
 
             session([
@@ -212,7 +231,10 @@ class SiswaController extends Controller
                 'exam_attempt_id' => $newAttempt->id,
             ]);
 
-            return redirect()->route('siswa.exam', $exam->id);
+            return redirect()->route(
+                'siswa.exam',
+                $exam->id
+            );
         }
 
         if (
@@ -269,14 +291,14 @@ class SiswaController extends Controller
         ]);
 
         if (empty($attempt->randomized_data)) {
-            $questions = Question::where(
+            $allQuestions = Question::where(
                 'exam_id',
                 $exam->id
             )
                 ->orderBy('id')
                 ->get();
 
-            $questionOrder = $questions
+            $questionOrder = $allQuestions
                 ->pluck('id')
                 ->shuffle()
                 ->values()
@@ -284,7 +306,7 @@ class SiswaController extends Controller
 
             $options = [];
 
-            foreach ($questions as $question) {
+            foreach ($allQuestions as $question) {
                 $originalOptions = [
                     'A',
                     'B',
@@ -311,11 +333,25 @@ class SiswaController extends Controller
                     'options' => $options,
                 ],
             ]);
+
+            $attempt->refresh();
         }
 
         $randomizedData = $attempt->randomized_data ?? [];
 
         $questionOrder = $randomizedData['question_order'] ?? [];
+
+        $options = $randomizedData['options'] ?? [];
+
+        if (empty($questionOrder)) {
+            $questionOrder = Question::where(
+                'exam_id',
+                $exam->id
+            )
+                ->orderBy('id')
+                ->pluck('id')
+                ->toArray();
+        }
 
         $questions = Question::where(
             'exam_id',
@@ -331,7 +367,13 @@ class SiswaController extends Controller
             })
             ->values();
 
-        $options = $randomizedData['options'] ?? [];
+        $answers = Answer::where(
+            'exam_id',
+            $exam->id
+        )
+            ->where('siswa_id', $siswaId)
+            ->whereIn('question_id', $questions->pluck('id'))
+            ->pluck('jawaban', 'question_id');
 
         return view(
             'siswa.exam',
@@ -339,7 +381,8 @@ class SiswaController extends Controller
                 'exam',
                 'questions',
                 'attempt',
-                'options'
+                'options',
+                'answers'
             )
         );
     }
@@ -410,9 +453,12 @@ class SiswaController extends Controller
             if (
                 $jawabanTampilan !== null &&
                 $jawabanTampilan !== '' &&
-                isset($optionMapping[$question->id][$jawabanTampilan])
+                isset(
+                    $optionMapping[$question->id][$jawabanTampilan]
+                )
             ) {
-                $jawabanAsli = $optionMapping[$question->id][$jawabanTampilan];
+                $jawabanAsli =
+                    $optionMapping[$question->id][$jawabanTampilan];
             } elseif (
                 $jawabanTampilan !== null &&
                 $jawabanTampilan !== ''

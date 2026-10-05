@@ -479,6 +479,7 @@
         <div class="exam-layout">
 
             <div class="question-area">
+
                 <form
                     action="{{ route('siswa.exam.submit', $exam) }}"
                     method="POST"
@@ -522,14 +523,17 @@
                                         'A' => 'A',
                                         'B' => 'B',
                                         'C' => 'C',
-                                        'D' => 'D',
+                                        'D' => 'D'
                                     ];
+
+                                    $savedAnswer = $answers[$question->id] ?? null;
                                 @endphp
 
                                 <div
                                     class="question-card {{ $index === 0 ? 'active' : '' }}"
                                     data-question="{{ $index }}"
                                 >
+
                                     <div class="question-text">
                                         {{ $question->pertanyaan }}
                                     </div>
@@ -540,20 +544,26 @@
                                             $originalLetter = $questionOptions[$displayLetter] ?? $displayLetter;
                                             $optionField = 'pilihan_' . strtolower($originalLetter);
                                             $optionText = $question->{$optionField};
+                                            $isChecked = strtoupper((string) $savedAnswer) === strtoupper((string) $originalLetter);
                                         @endphp
 
                                         <div class="option">
+
                                             <input
                                                 type="radio"
                                                 id="q{{ $question->id }}_{{ strtolower($displayLetter) }}"
                                                 name="jawaban[{{ $question->id }}]"
                                                 value="{{ $displayLetter }}"
+                                                {{ $isChecked ? 'checked' : '' }}
                                             >
 
-                                            <label for="q{{ $question->id }}_{{ strtolower($displayLetter) }}">
+                                            <label
+                                                for="q{{ $question->id }}_{{ strtolower($displayLetter) }}"
+                                            >
                                                 <strong>{{ $displayLetter }}.</strong>
                                                 {{ $optionText }}
                                             </label>
+
                                         </div>
 
                                     @endforeach
@@ -565,6 +575,7 @@
                         </div>
 
                         <div class="question-navigation">
+
                             <button
                                 type="button"
                                 class="nav-btn prev-btn"
@@ -582,12 +593,14 @@
                             >
                                 Soal Selanjutnya
                             </button>
+
                         </div>
 
                     @else
 
                         <div class="empty">
                             <h3>Belum Ada Soal</h3>
+
                             <p style="margin-top: 8px;">
                                 Guru belum menambahkan soal
                                 ke dalam ujian ini.
@@ -597,6 +610,7 @@
                     @endif
 
                 </form>
+
             </div>
 
             @if($questions->count() > 0)
@@ -604,6 +618,7 @@
                 <div class="right-column">
 
                     <div class="number-panel">
+
                         <h3>Nomor Soal</h3>
 
                         <p>
@@ -614,9 +629,13 @@
 
                             @foreach($questions as $index => $question)
 
+                                @php
+                                    $savedAnswer = $answers[$question->id] ?? null;
+                                @endphp
+
                                 <button
                                     type="button"
-                                    class="number-btn {{ $index === 0 ? 'active' : '' }}"
+                                    class="number-btn {{ $index === 0 ? 'active' : '' }} {{ !empty($savedAnswer) ? 'answered' : '' }}"
                                     data-number="{{ $index }}"
                                 >
                                     {{ $index + 1 }}
@@ -639,6 +658,7 @@
                             </div>
 
                         </div>
+
                     </div>
 
                 </div>
@@ -984,7 +1004,6 @@
 
             if (nextButton) {
                 nextButton.disabled = true;
-
                 nextButton.textContent =
                     'Ujian Dikumpulkan...';
             }
@@ -1094,5 +1113,6 @@
 
         showQuestion(0);
     </script>
+
 </body>
 </html>
