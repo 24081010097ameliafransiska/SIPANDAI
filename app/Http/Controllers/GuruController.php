@@ -35,12 +35,15 @@ class GuruController extends Controller
             ->sortByDesc('created_at')
             ->values();
 
+        $exam = $ujian->first();
+
         return view(
             'guru.dashboard',
             compact(
                 'guru',
                 'ujian',
-                'hasilUjian'
+                'hasilUjian',
+                'exam'
             )
         );
     }
