@@ -530,7 +530,6 @@
                                     class="question-card {{ $index === 0 ? 'active' : '' }}"
                                     data-question="{{ $index }}"
                                 >
-
                                     <div class="question-text">
                                         {{ $question->pertanyaan }}
                                     </div>

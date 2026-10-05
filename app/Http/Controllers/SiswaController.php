@@ -54,7 +54,6 @@ class SiswaController extends Controller
         }
 
         $siswaId = Auth::id();
-
         $fotoAbsen = $request->input('foto_absen');
 
         if (
