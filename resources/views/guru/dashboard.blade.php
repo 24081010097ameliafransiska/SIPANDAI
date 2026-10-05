@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Dashboard Guru - SIPANDAI</title>
+    <title>{{ $exam->nama_ujian }} - SIPANDAI</title>
+
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <style>
         :root {
             --red: #8f2635;
@@ -1783,8 +1789,13 @@
         }
     </style>
 </head>
+
 <body>
-<aside class="sidebar" id="sidebar">
+
+
+    
+
+    <aside class="sidebar" id="sidebar">
 
         <div class="sidebar-header">
 
@@ -1824,12 +1835,12 @@
 
             <nav class="sidebar-menu">
 
-                <a href="{{ route('guru.dashboard') }}" class="menu-item active">
+                <a href="{{ route('guru.dashboard') }}" class="menu-item">
                     <i class="fa-solid fa-house"></i>
                     <span>Dashboard</span>
                 </a>
 
-                <a href="{{ route('guru.exams.index') }}" class="menu-item">
+                <a href="{{ route('guru.exams.index') }}" class="menu-item active">
                     <i class="fa-solid fa-clipboard-list"></i>
                     <span>Kelola Ujian</span>
                 </a>
@@ -1893,9 +1904,19 @@
         </div>
 
     </aside>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<main class="main">
-<header class="topbar">
+
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    
+
+    <main class="main">
+
+
+        
+
+        <header class="topbar">
 
             <div class="topbar-left">
 
@@ -1930,11 +1951,53 @@
                     
 
                     <nav class="breadcrumb" aria-label="Breadcrumb">
-                        <a href="{{ route('guru.dashboard') }}" class="breadcrumb-root">SIPANDAI</a>
-                        <span class="crumb">
+
+                        <a
+                            href="{{ route('guru.dashboard') }}"
+                            class="breadcrumb-root">
+                            SIPANDAI
+                        </a>
+
+
+                        <span class="crumb crumb-mid">
+
                             <i class="fa-solid fa-chevron-right breadcrumb-sep" aria-hidden="true"></i>
-                            <span class="breadcrumb-current" aria-current="page"><span>DASHBOARD</span></span>
+
+                            <a
+                                href="{{ route('guru.exams.index') }}"
+                                class="breadcrumb-link">
+                                KELOLA UJIAN
+                            </a>
+
                         </span>
+
+
+                        <span class="crumb crumb-mid">
+
+                            <i class="fa-solid fa-chevron-right breadcrumb-sep" aria-hidden="true"></i>
+
+                            <a
+                                href="{{ route('guru.exams.create') }}"
+                                class="breadcrumb-link">
+                                BUAT UJIAN
+                            </a>
+
+                        </span>
+
+
+                        <span class="crumb">
+
+                            <i class="fa-solid fa-chevron-right breadcrumb-sep" aria-hidden="true"></i>
+
+                            <a
+                                href="{{ route('guru.exams.show', $exam->id) }}"
+                                class="breadcrumb-current"
+                                aria-current="page">
+                                <span>DETAIL UJIAN</span>
+                            </a>
+
+                        </span>
+
                     </nav>
 
 
@@ -1974,70 +2037,1208 @@
             </div>
 
         </header>
-<div class="content">
-    @if(session('success'))
-        <div class="alert alert-success"><i class="fa-solid fa-circle-check"></i><span>{{ session('success') }}</span></div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>{{ session('error') }}</span></div>
-    @endif
-    @php
-        $dashboardExams = \App\Models\Exam::where('guru_id', auth()->id())->orderByDesc('tanggal_ujian')->orderByDesc('id')->get();
-        $activeCount = $dashboardExams->filter(fn ($item) => strtolower(trim((string) $item->status)) === 'aktif')->count();
-        $finishedCount = $dashboardExams->filter(fn ($item) => strtolower(trim((string) $item->status)) === 'selesai')->count();
-    @endphp
-    <div class="page-header">
-        <div class="page-header-left">
-            <h1 class="page-title">Dashboard Guru</h1>
-            <p class="page-subtitle">Selamat datang di SIPANDAI. Kelola ujian dan pantau aktivitas ujian dari sini.</p>
-        </div>
-        <a href="{{ route('guru.exams.create') }}" class="exam-action-activate"><i class="fa-solid fa-plus"></i> Buat Ujian</a>
-    </div>
-    <div class="info-grid" style="margin-top:0;margin-bottom:18px;border-top:0;">
-        <div class="info-item" style="padding:18px;background:#fff;border:1px solid var(--border-light);border-radius:14px;">
-            <div class="info-label">Total Ujian</div><div class="info-value" style="font-size:22px;">{{ $dashboardExams->count() }}</div>
-        </div>
-        <div class="info-item" style="padding:18px;background:#fff;border:1px solid var(--border-light);border-radius:14px;">
-            <div class="info-label">Ujian Aktif</div><div class="info-value" style="font-size:22px;color:var(--green-dark);">{{ $activeCount }}</div>
-        </div>
-        <div class="info-item" style="padding:18px;background:#fff;border:1px solid var(--border-light);border-radius:14px;">
-            <div class="info-label">Ujian Selesai</div><div class="info-value" style="font-size:22px;">{{ $finishedCount }}</div>
-        </div>
-    </div>
-    <section class="exam-card">
-        <div class="exam-card-top">
-            <div><h2 class="exam-name">Daftar Ujian</h2><p class="exam-meta">Kelola ujian yang telah dibuat.</p></div>
-            <a href="{{ route('guru.exams.index') }}" class="exam-action-back">Lihat Semua</a>
-        </div>
-        @if($dashboardExams->count() > 0)
-            <div class="info-grid" style="grid-template-columns:1fr;margin-top:20px;">
-                @foreach($dashboardExams as $exam)
-                    @php $statusClass = strtolower(str_replace(' ', '-', (string) $exam->status)); @endphp
-                    <div class="info-item" style="padding:18px 0;border-bottom:1px solid var(--border-light);">
-                        <div style="display:flex;align-items:center;justify-content:space-between;gap:15px;">
-                            <div style="min-width:0;"><div class="exam-name" style="margin-bottom:5px;">{{ $exam->nama_ujian }}</div><div class="exam-meta">{{ $exam->mata_pelajaran }} • {{ $exam->kelas }} • {{ $exam->tanggal_ujian ? $exam->tanggal_ujian->format('d M Y') : '-' }}</div></div>
-                            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;"><span class="status-badge status-{{ $statusClass }}">{{ $exam->status }}</span><a href="{{ route('guru.exams.show', $exam->id) }}" class="exam-action-back">Detail</a></div>
+
+
+        
+
+        <div class="content">
+
+
+            
+
+            <div class="page-header">
+
+                <div class="page-header-left">
+
+                    <h1 class="page-title">
+                        Detail Ujian
+                    </h1>
+
+                    <p class="page-subtitle">
+                        Kelola informasi dan soal pada ujian yang telah dibuat.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            
+
+            @if(session('success'))
+
+                <div class="alert alert-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
+
+            @endif
+
+
+            
+
+            @if(session('error'))
+
+                <div class="alert alert-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+
+            @endif
+
+
+            
+
+            <section class="exam-card">
+
+                <div class="exam-card-top">
+
+                    <div>
+
+                        <h2 class="exam-name">
+                            {{ $exam->nama_ujian }}
+                        </h2>
+
+                        <p class="exam-meta">
+                            {{ $exam->mata_pelajaran }}
+                            <span>•</span>
+                            {{ $exam->kelas }}
+                        </p>
+
+                    </div>
+
+
+                    @php
+                        $statusClass = strtolower(str_replace(' ', '-', $exam->status));
+                    @endphp
+
+                    <span class="status-badge status-{{ $statusClass }}">
+                        {{ $exam->status }}
+                    </span>
+
+                </div>
+
+
+                <div class="info-grid">
+
+                    <div class="info-item">
+                        <div class="info-label">Tanggal</div>
+                        <div class="info-value">
+                            {{ $exam->tanggal_ujian->format('d M Y') }}
                         </div>
                     </div>
-                @endforeach
+
+                    <div class="info-item">
+                        <div class="info-label">Waktu</div>
+                        <div class="info-value">
+                            {{ substr($exam->jam_mulai, 0, 5) }}
+                            -
+                            {{ substr($exam->jam_selesai, 0, 5) }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Durasi</div>
+                        <div class="info-value">
+                            {{ $exam->durasi }} menit
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Kode Ujian</div>
+                        <div class="info-value code">
+                            {{ $exam->kode_ujian }}
+                        </div>
+                    </div>
+
+                </div>
+
+
+                
+
+                <div class="exam-actions">
+
+                    <a
+                        href="{{ route('guru.exams.edit', $exam->id) }}"
+                        class="exam-action-back">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Kembali
+
+                    </a>
+
+
+                    <div class="exam-action-right">
+
+                        @if(strtolower($exam->status) === 'draft')
+
+                            <form
+                                action="{{ route('guru.exams.activate', $exam->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('Aktifkan ujian ini sekarang?');">
+
+                                @csrf
+
+                                <button type="submit" class="exam-action-activate">
+                                    <i class="fa-solid fa-play"></i>
+                                    Aktifkan Ujian
+                                </button>
+
+                            </form>
+
+                        @elseif(strtolower($exam->status) === 'aktif')
+
+                            <form
+                                action="{{ route('guru.exams.finish', $exam->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('Yakin ingin menyelesaikan ujian ini?');">
+
+                                @csrf
+
+                                <button type="submit" class="exam-action-finish">
+                                    <i class="fa-solid fa-flag-checkered"></i>
+                                    Selesaikan Ujian
+                                </button>
+
+                            </form>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            
+
+            <section class="section-card">
+
+                <div class="section-head">
+
+                    <div class="section-title-wrap">
+
+                        <div class="section-icon">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+
+                        <div>
+                            <div class="section-title">Daftar Soal</div>
+                            <div class="section-count">
+                                {{ $exam->questions->count() }} soal
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    
+
+                    <button
+                        type="button"
+                        class="question-add-btn"
+                        onclick="openBulkQuestionModal()">
+
+                        <span class="question-add-icon">
+                            <i class="fa-solid fa-plus"></i>
+                        </span>
+
+                        <span>Tambah Soal</span>
+
+                    </button>
+
+                </div>
+
+
+                @if($exam->questions->count() > 0)
+
+                    <div class="question-list">
+
+                        @foreach($exam->questions as $index => $question)
+
+                            <div class="question-item">
+
+                                <div class="question-top">
+
+                                    <div class="question-number">
+                                        {{ $index + 1 }}
+                                    </div>
+
+                                    <div class="question-content">
+
+                                        <div class="question-text">
+                                            {{ $question->pertanyaan }}
+                                        </div>
+
+                                        <div class="options-grid">
+
+                                            <div class="option {{ $question->jawaban_benar === 'A' ? 'correct' : '' }}">
+                                                <span class="option-letter">A.</span>
+                                                <span>{{ $question->pilihan_a }}</span>
+                                            </div>
+
+                                            <div class="option {{ $question->jawaban_benar === 'B' ? 'correct' : '' }}">
+                                                <span class="option-letter">B.</span>
+                                                <span>{{ $question->pilihan_b }}</span>
+                                            </div>
+
+                                            <div class="option {{ $question->jawaban_benar === 'C' ? 'correct' : '' }}">
+                                                <span class="option-letter">C.</span>
+                                                <span>{{ $question->pilihan_c }}</span>
+                                            </div>
+
+                                            <div class="option {{ $question->jawaban_benar === 'D' ? 'correct' : '' }}">
+                                                <span class="option-letter">D.</span>
+                                                <span>{{ $question->pilihan_d }}</span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    
+
+                                    <div class="question-actions">
+
+                                        <a
+                                            href="{{ route('guru.questions.edit', [$exam->id, $question->id]) }}"
+                                            class="btn-icon btn-edit"
+                                            title="Edit soal">
+
+                                            <i class="fa-solid fa-pen"></i>
+
+                                        </a>
+
+                                        <form
+                                            action="{{ route('guru.questions.destroy', [$exam->id, $question->id]) }}"
+                                            method="POST"
+                                            style="margin: 0;"
+                                            onsubmit="return confirm('Yakin ingin menghapus soal ini?');">
+
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button
+                                                type="submit"
+                                                class="btn-icon btn-delete"
+                                                title="Hapus soal">
+
+                                                <i class="fa-solid fa-trash"></i>
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+
+                @else
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </div>
+
+                        <strong>Belum ada soal</strong>
+
+                        <p>Tambahkan soal untuk mulai melengkapi ujian ini.</p>
+
+                    </div>
+
+                @endif
+
+            </section>
+
+
+            
+
+            <footer class="footer">
+                SIPANDAI © {{ date('Y') }} · Sistem Ujian Digital
+            </footer>
+
+        </div>
+
+    </main>
+
+
+    
+
+    <div
+        class="bulk-modal"
+        id="bulkQuestionModal"
+        data-existing-count="{{ $exam->questions->count() }}"
+        data-store-url="{{ route('guru.questions.store', $exam->id, false) }}"
+        data-redirect-url="{{ route('guru.exams.show', $exam->id, false) }}">
+
+        <div class="bulk-modal-card">
+
+            <div class="bulk-header">
+
+                <div class="bulk-header-left">
+
+                    <div class="bulk-icon">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+
+                    <div class="bulk-heading">
+                        <strong>Tambah Banyak Soal</strong>
+                        <span>Isi beberapa soal sekaligus</span>
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="bulk-close"
+                    onclick="closeBulkQuestionModal()">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
             </div>
-        @else
-            <div class="empty-state" style="padding:45px 20px;text-align:center;color:var(--muted);"><div style="font-size:32px;margin-bottom:10px;color:var(--red);"><i class="fa-regular fa-file-lines"></i></div><strong>Belum ada ujian</strong><p style="margin-top:8px;">Buat ujian pertama untuk mulai menggunakan SIPANDAI.</p></div>
-        @endif
-    </section>
-    <footer class="footer">SIPANDAI © {{ date('Y') }} · Sistem Ujian Digital</footer>
-</div>
-</main>
-<script>
-const sidebar=document.querySelector('.sidebar');
-const overlay=document.getElementById('sidebarOverlay');
-const button=document.getElementById('navbarHomeBtn');
-const close=document.getElementById('closeSidebar');
-function openSidebar(){sidebar&&sidebar.classList.add('show');overlay&&overlay.classList.add('show');document.body.classList.add('sidebar-open')}
-function closeSidebar(){sidebar&&sidebar.classList.remove('show');overlay&&overlay.classList.remove('show');document.body.classList.remove('sidebar-open')}
-button&&button.addEventListener('click',function(){document.body.classList.contains('sidebar-open')?closeSidebar():openSidebar()});
-close&&close.addEventListener('click',closeSidebar);
-overlay&&overlay.addEventListener('click',closeSidebar);
-</script>
+
+
+            <div class="bulk-toolbar">
+
+                <div class="bulk-toolbar-left">
+
+                    <span class="bulk-toolbar-label">
+                        Tambah sekaligus
+                    </span>
+
+                    <input
+                        type="number"
+                        id="bulkCount"
+                        class="bulk-count-input"
+                        placeholder="Jumlah"
+                        min="1"
+                        max="100">
+
+                    <button
+                        type="button"
+                        class="bulk-generate"
+                        onclick="generateBulkQuestions()">
+
+                        <i class="fa-solid fa-layer-group"></i>
+                        Buat Form
+
+                    </button>
+
+                </div>
+
+                <div class="bulk-note">
+                    Isi jumlah soal yang diinginkan (misal 20), lalu klik "Buat Form". Maksimal 100 soal per sesi. Klik ikon hapus di tiap soal untuk membatalkannya.
+                </div>
+
+            </div>
+
+
+            <div class="bulk-body">
+
+                <div class="bulk-list" id="bulkQuestionList">
+
+                    <div class="empty-state" id="bulkEmptyState">
+
+                        <div class="empty-icon">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </div>
+
+                        <strong>Belum ada form soal</strong>
+
+                        <p>
+                            Masukkan jumlah lalu klik "Tambah Banyak", atau klik "Tambah 1 Soal" untuk menambah satu per satu.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="bulk-footer">
+
+                <span class="bulk-footer-count" id="bulkFooterCount">
+                    0 soal siap disimpan
+                </span>
+
+                <div class="bulk-footer-right">
+
+                    <button
+                        type="button"
+                        class="bulk-btn-cancel"
+                        onclick="closeBulkQuestionModal()">
+
+                        Batal
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="bulk-btn-save"
+                        id="bulkSaveButton"
+                        onclick="saveAllBulkQuestions()">
+
+                        <i class="fa-solid fa-check"></i>
+                        <span>Simpan Semua Soal</span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    
+
+    <script>
+
+        
+
+        const sidebar = document.getElementById("sidebar");
+        const sidebarOverlay = document.getElementById("sidebarOverlay");
+        const navbarHomeBtn = document.getElementById("navbarHomeBtn");
+        const closeSidebar = document.getElementById("closeSidebar");
+
+
+        function openSidebar() {
+
+            if (!sidebar || !sidebarOverlay) {
+                return;
+            }
+
+            sidebar.classList.add("show");
+            sidebarOverlay.classList.add("show");
+            document.body.classList.add("sidebar-open");
+
+        }
+
+
+        function closeSidebarMenu() {
+
+            if (!sidebar || !sidebarOverlay) {
+                return;
+            }
+
+            sidebar.classList.remove("show");
+            sidebarOverlay.classList.remove("show");
+            document.body.classList.remove("sidebar-open");
+
+        }
+
+
+        if (navbarHomeBtn) {
+
+            navbarHomeBtn.addEventListener("click", function () {
+
+                if (sidebar && sidebar.classList.contains("show")) {
+                    closeSidebarMenu();
+                } else {
+                    openSidebar();
+                }
+
+            });
+
+        }
+
+
+        if (closeSidebar) {
+            closeSidebar.addEventListener("click", closeSidebarMenu);
+        }
+
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener("click", closeSidebarMenu);
+        }
+
+
+        document.addEventListener("keydown", function (event) {
+
+            if (event.key === "Escape") {
+
+                closeSidebarMenu();
+
+                const modal = document.getElementById("bulkQuestionModal");
+
+                if (modal && modal.classList.contains("show")) {
+                    closeBulkQuestionModal();
+                }
+
+            }
+
+        });
+
+
+        document
+            .querySelectorAll(".sidebar-menu .menu-item")
+            .forEach(function (link) {
+
+                link.addEventListener("click", function () {
+
+                    if (window.innerWidth <= 900) {
+                        closeSidebarMenu();
+                    }
+
+                });
+
+            });
+
+
+        window.addEventListener("resize", function () {
+
+            if (window.innerWidth > 900 && sidebarOverlay) {
+                sidebarOverlay.classList.remove("show");
+            }
+
+        });
+
+
+        
+
+        let bulkQuestionSeq = 0;
+
+
+        function openBulkQuestionModal() {
+
+            const modal = document.getElementById("bulkQuestionModal");
+
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.add("show");
+            document.body.classList.add("bulk-open");
+            const list = document.getElementById("bulkQuestionList");
+
+            if (list) {
+
+                list.innerHTML = "";
+                bulkQuestionSeq = 0;
+
+                renderBulkEmptyState();
+                updateBulkFooterCount();
+
+            }
+
+        }
+
+
+        function closeBulkQuestionModal() {
+
+            const modal = document.getElementById("bulkQuestionModal");
+
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove("show");
+            document.body.classList.remove("bulk-open");
+
+        }
+
+
+        function renderBulkEmptyState() {
+
+            const list = document.getElementById("bulkQuestionList");
+
+            if (!list) {
+                return;
+            }
+
+            if (list.children.length > 0) {
+                return;
+            }
+
+            const empty = document.createElement("div");
+
+            empty.className = "empty-state";
+            empty.id = "bulkEmptyState";
+
+            empty.innerHTML = `
+
+                <div class="empty-icon">
+                    <i class="fa-regular fa-file-lines"></i>
+                </div>
+
+                <strong>
+                    Belum ada form soal
+                </strong>
+
+                <p>
+                    Masukkan jumlah lalu klik "Tambah Banyak", atau klik "Tambah 1 Soal" untuk menambah satu per satu.
+                </p>
+
+            `;
+
+            list.appendChild(empty);
+
+        }
+
+
+        function removeBulkEmptyState() {
+
+            const empty = document.getElementById("bulkEmptyState");
+
+            if (empty) {
+                empty.remove();
+            }
+
+        }
+
+
+        
+
+        function buildBulkQuestionCard() {
+
+            bulkQuestionSeq += 1;
+
+            const localId = bulkQuestionSeq;
+
+            const card = document.createElement("div");
+
+            card.className = "bulk-question";
+            card.dataset.localId = localId;
+
+            card.innerHTML = `
+
+                <div class="bulk-question-head">
+
+                    <div class="bulk-question-head-left">
+
+                        <div class="bulk-question-number">
+                            #
+                        </div>
+
+                        <div class="bulk-question-title">
+                            Soal
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="bulk-question-remove"
+                        title="Hapus soal ini"
+                        onclick="removeBulkQuestion(${localId})">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+
+                </div>
+
+
+                <div class="bulk-grid">
+
+
+                    <div class="bulk-field full">
+
+                        <label>
+                            Pertanyaan
+                        </label>
+
+                        <textarea
+                            class="bulk-textarea"
+                            data-field="pertanyaan"
+                            placeholder="Tuliskan pertanyaan..."
+                            required></textarea>
+
+                    </div>
+
+
+                    <div class="bulk-field full">
+
+                        <label>
+                            Pilihan Jawaban
+                        </label>
+
+                        <div class="option-input-list">
+
+                            <div class="option-input-row">
+
+                                <span class="option-input-letter">a.</span>
+
+                                <input
+                                    type="text"
+                                    class="bulk-input"
+                                    data-field="pilihan_a"
+                                    placeholder="Jawaban A"
+                                    required>
+
+                            </div>
+
+
+                            <div class="option-input-row">
+
+                                <span class="option-input-letter">b.</span>
+
+                                <input
+                                    type="text"
+                                    class="bulk-input"
+                                    data-field="pilihan_b"
+                                    placeholder="Jawaban B"
+                                    required>
+
+                            </div>
+
+
+                            <div class="option-input-row">
+
+                                <span class="option-input-letter">c.</span>
+
+                                <input
+                                    type="text"
+                                    class="bulk-input"
+                                    data-field="pilihan_c"
+                                    placeholder="Jawaban C"
+                                    required>
+
+                            </div>
+
+
+                            <div class="option-input-row">
+
+                                <span class="option-input-letter">d.</span>
+
+                                <input
+                                    type="text"
+                                    class="bulk-input"
+                                    data-field="pilihan_d"
+                                    placeholder="Jawaban D"
+                                    required>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="bulk-field full">
+
+                        <label>
+                            Jawaban Benar
+                        </label>
+
+                        <div class="answer-choice-group" data-field="jawaban_benar">
+
+                            <button type="button" class="answer-choice-btn" data-value="A">A</button>
+                            <button type="button" class="answer-choice-btn" data-value="B">B</button>
+                            <button type="button" class="answer-choice-btn" data-value="C">C</button>
+                            <button type="button" class="answer-choice-btn" data-value="D">D</button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+            return card;
+
+        }
+
+
+        
+
+        document.addEventListener("click", function (e) {
+
+            const btn = e.target.closest(".answer-choice-btn");
+
+            if (!btn) {
+                return;
+            }
+
+            const group = btn.closest(".answer-choice-group");
+
+            if (!group) {
+                return;
+            }
+
+            group.querySelectorAll(".answer-choice-btn")
+                .forEach(b => b.classList.remove("selected"));
+
+            btn.classList.add("selected");
+
+            group.dataset.value = btn.dataset.value;
+
+        });
+
+
+        
+
+        function generateBulkQuestions() {
+
+            const countInput = document.getElementById("bulkCount");
+            const list = document.getElementById("bulkQuestionList");
+
+            if (!countInput || !list) {
+                return;
+            }
+
+            let count = parseInt(countInput.value, 10);
+
+            if (isNaN(count) || count < 1) {
+
+                alert("Masukkan jumlah soal yang ingin dibuat (minimal 1).");
+
+                countInput.focus();
+
+                return;
+
+            }
+
+            if (count > 100) {
+
+                count = 100;
+
+                countInput.value = count;
+
+            }
+
+            removeBulkEmptyState();
+
+            for (let i = 0; i < count; i++) {
+
+                const card = buildBulkQuestionCard();
+
+                list.appendChild(card);
+
+            }
+
+            renumberBulkQuestions();
+            updateBulkFooterCount();
+
+        }
+
+
+        
+
+        function removeBulkQuestion(localId) {
+
+            const list = document.getElementById("bulkQuestionList");
+
+            if (!list) {
+                return;
+            }
+
+            const card = list.querySelector(
+                `.bulk-question[data-local-id="${localId}"]`
+            );
+
+            if (card) {
+                card.remove();
+            }
+
+            if (list.children.length === 0) {
+                renderBulkEmptyState();
+            }
+
+            renumberBulkQuestions();
+            updateBulkFooterCount();
+
+        }
+
+
+        
+
+        function renumberBulkQuestions() {
+
+            const modalEl = document.getElementById("bulkQuestionModal");
+
+            const existingCount = modalEl
+                ? (parseInt(modalEl.dataset.existingCount, 10) || 0)
+                : 0;
+
+            const cards = document.querySelectorAll(
+                "#bulkQuestionList .bulk-question"
+            );
+
+            cards.forEach(function (card, i) {
+
+                const displayNumber = existingCount + i + 1;
+
+                const numberEl = card.querySelector(".bulk-question-number");
+                const titleEl = card.querySelector(".bulk-question-title");
+                const textareaEl = card.querySelector('[data-field="pertanyaan"]');
+
+                if (numberEl) {
+                    numberEl.textContent = displayNumber;
+                }
+
+                if (titleEl) {
+                    titleEl.textContent = "Soal " + displayNumber;
+                }
+
+                if (textareaEl && !textareaEl.value) {
+                    textareaEl.placeholder =
+                        "Tuliskan pertanyaan soal " + displayNumber + "...";
+                }
+
+            });
+
+        }
+
+
+        
+
+        function updateBulkFooterCount() {
+
+            const footerCount = document.getElementById("bulkFooterCount");
+
+            if (!footerCount) {
+                return;
+            }
+
+            const total = document.querySelectorAll(
+                "#bulkQuestionList .bulk-question"
+            ).length;
+
+            footerCount.textContent = total + " soal siap disimpan";
+
+        }
+
+
+        
+
+        function getQuestionData(card) {
+
+            const pertanyaan = card.querySelector('[data-field="pertanyaan"]');
+            const opsiA = card.querySelector('[data-field="pilihan_a"]');
+            const opsiB = card.querySelector('[data-field="pilihan_b"]');
+            const opsiC = card.querySelector('[data-field="pilihan_c"]');
+            const opsiD = card.querySelector('[data-field="pilihan_d"]');
+            const jawabanBenarGroup = card.querySelector('[data-field="jawaban_benar"]');
+
+            if (
+                !pertanyaan ||
+                !opsiA ||
+                !opsiB ||
+                !opsiC ||
+                !opsiD ||
+                !jawabanBenarGroup
+            ) {
+                return null;
+            }
+
+            return {
+                pertanyaan: pertanyaan.value.trim(),
+                pilihan_a: opsiA.value.trim(),
+                pilihan_b: opsiB.value.trim(),
+                pilihan_c: opsiC.value.trim(),
+                pilihan_d: opsiD.value.trim(),
+                jawaban_benar: jawabanBenarGroup.dataset.value || ""
+            };
+
+        }
+
+
+        
+
+        async function saveAllBulkQuestions() {
+
+            const cards = document.querySelectorAll(
+                "#bulkQuestionList .bulk-question"
+            );
+
+            if (!cards.length) {
+                alert("Silakan tambah minimal 1 form soal terlebih dahulu.");
+                return;
+            }
+
+            const questions = [];
+
+            for (let i = 0; i < cards.length; i++) {
+
+                const data = getQuestionData(cards[i]);
+
+                if (!data) {
+                    alert("Form soal nomor " + (i + 1) + " tidak ditemukan.");
+                    return;
+                }
+
+                if (
+                    !data.pertanyaan ||
+                    !data.pilihan_a ||
+                    !data.pilihan_b ||
+                    !data.pilihan_c ||
+                    !data.pilihan_d ||
+                    !data.jawaban_benar
+                ) {
+                    alert("Soal nomor " + (i + 1) + " belum lengkap.");
+                    return;
+                }
+
+                questions.push(data);
+            }
+
+            const saveButton = document.getElementById("bulkSaveButton");
+
+            if (saveButton) {
+                saveButton.disabled = true;
+                saveButton.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin"></i>' +
+                    '<span>Menyimpan ' + questions.length + ' soal...</span>';
+            }
+
+            const csrfMeta = document.querySelector(
+                'meta[name="csrf-token"]'
+            );
+
+            if (!csrfMeta) {
+                alert("CSRF token tidak ditemukan.");
+                resetBulkSaveButton();
+                return;
+            }
+
+            const csrfToken = csrfMeta.getAttribute("content");
+            const bulkModalEl = document.getElementById("bulkQuestionModal");
+            const storeUrl = bulkModalEl
+                ? bulkModalEl.dataset.storeUrl
+                : "";
+            const redirectUrl = bulkModalEl
+                ? bulkModalEl.dataset.redirectUrl
+                : "";
+
+            if (!storeUrl) {
+                alert("URL simpan soal tidak ditemukan.");
+                resetBulkSaveButton();
+                return;
+            }
+
+            try {
+
+                
+                const response = await fetch(storeUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": csrfToken,
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        _token: csrfToken,
+                        questions: questions
+                    })
+                });
+
+                if (!response.ok) {
+
+                    let message = "Gagal menyimpan soal.";
+
+                    try {
+                        const result = await response.json();
+                        if (result.message) {
+                            message = result.message;
+                        }
+                        if (result.errors) {
+                            const firstError = Object.values(result.errors)
+                                .flat()[0];
+                            if (firstError) {
+                                message = firstError;
+                            }
+                        }
+                    } catch (e) {
+                    }
+
+                    throw new Error(message);
+                }
+
+                
+                window.location.href =
+                    redirectUrl || window.location.href;
+
+            } catch (error) {
+
+                console.error("Bulk Question Error:", error);
+
+                alert(
+                    error.message ||
+                    "Terjadi kesalahan saat menyimpan soal."
+                );
+
+                resetBulkSaveButton();
+            }
+        }
+
+
+        
+
+        function resetBulkSaveButton() {
+
+            const saveButton = document.getElementById("bulkSaveButton");
+
+            if (!saveButton) {
+                return;
+            }
+
+            saveButton.disabled = false;
+
+            saveButton.innerHTML =
+                '<i class="fa-solid fa-check"></i>' +
+                '<span>Simpan Semua Soal</span>';
+
+        }
+
+
+        
+
+        const bulkQuestionModal = document.getElementById("bulkQuestionModal");
+
+        if (bulkQuestionModal) {
+
+            bulkQuestionModal.addEventListener("click", function (event) {
+
+                if (event.target === bulkQuestionModal) {
+                    closeBulkQuestionModal();
+                }
+
+            });
+
+        }
+
+
+        
+
+        const bulkCount = document.getElementById("bulkCount");
+
+        if (bulkCount) {
+
+            bulkCount.addEventListener("input", function () {
+                if (this.value === "") {
+                    return;
+                }
+
+                let value = parseInt(this.value, 10);
+
+                if (!isNaN(value) && value > 100) {
+                    this.value = 100;
+                }
+
+            });
+
+        }
+
+    </script>
+
 </body>
+
 </html>
