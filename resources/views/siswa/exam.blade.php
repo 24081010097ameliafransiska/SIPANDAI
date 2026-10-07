@@ -452,6 +452,249 @@
                 flex-wrap: wrap;
             }
         }
+
+        @media (max-width: 850px) {
+            .container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .exam-layout {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .right-column {
+                order: -1;
+            }
+
+            .number-panel {
+                position: static;
+                width: 100%;
+            }
+
+            .number-grid {
+                grid-template-columns: repeat(8, minmax(36px, 1fr));
+            }
+        }
+
+        @media (max-width: 650px) {
+            body {
+                overflow-x: hidden;
+            }
+
+            .navbar {
+                height: 60px;
+                padding: 0 14px;
+            }
+
+            .brand {
+                gap: 6px;
+            }
+
+            .brand img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .logo {
+                font-size: 17px;
+            }
+
+            .exam-info {
+                display: none;
+            }
+
+            .container {
+                margin: 12px auto 0;
+                padding: 0 10px 25px;
+            }
+
+            .exam-layout {
+                gap: 12px;
+            }
+
+            .question-card-wrapper {
+                border-radius: 13px;
+            }
+
+            .question-topbar {
+                padding: 13px;
+                gap: 10px;
+                align-items: stretch;
+            }
+
+            .soal-no {
+                font-size: 12px;
+                gap: 7px;
+            }
+
+            .soal-no-badge {
+                padding: 5px 10px;
+                font-size: 13px;
+            }
+
+            .exam-timer-bar {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .exam-timer-bar .label,
+            .exam-timer-bar #examTimer {
+                padding: 8px 11px;
+                font-size: 12px;
+            }
+
+            .question-card {
+                padding: 16px 13px;
+            }
+
+            .question-text {
+                font-size: 15px;
+                line-height: 1.65;
+                margin-bottom: 18px;
+                overflow-wrap: anywhere;
+            }
+
+            .option {
+                gap: 9px;
+                padding: 13px 11px;
+                margin-bottom: 9px;
+                border-radius: 10px;
+                min-height: 50px;
+            }
+
+            .option input {
+                width: 18px;
+                height: 18px;
+            }
+
+            .option label {
+                font-size: 13px;
+                line-height: 1.5;
+                overflow-wrap: anywhere;
+            }
+
+            .question-navigation {
+                margin-top: 12px;
+                gap: 8px;
+                flex-wrap: nowrap;
+            }
+
+            .nav-btn {
+                flex: 1;
+                min-width: 0;
+                padding: 11px 8px;
+                font-size: 12px;
+            }
+
+            .number-panel {
+                padding: 15px;
+                border-radius: 13px;
+            }
+
+            .number-panel h3 {
+                font-size: 15px;
+            }
+
+            .number-panel p {
+                margin-bottom: 12px;
+                font-size: 11px;
+            }
+
+            .number-grid {
+                grid-template-columns: repeat(5, minmax(38px, 1fr));
+                gap: 7px;
+            }
+
+            .number-btn {
+                height: 40px;
+                min-width: 0;
+                font-size: 12px;
+            }
+
+            .legend {
+                margin-top: 14px;
+                padding-top: 12px;
+            }
+
+            .legend-item {
+                font-size: 10px;
+                margin-bottom: 6px;
+            }
+
+            .legend-box {
+                width: 13px;
+                height: 13px;
+            }
+
+            .empty {
+                padding: 30px 18px;
+                border-radius: 13px;
+            }
+
+            .tab-warning {
+                width: calc(100% - 24px);
+                max-width: 420px;
+                top: 70px;
+                padding: 12px 15px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .container {
+                padding-left: 7px;
+                padding-right: 7px;
+            }
+
+            .question-card {
+                padding: 14px 11px;
+            }
+
+            .question-topbar {
+                padding: 11px;
+            }
+
+            .exam-timer-bar .label {
+                display: none;
+            }
+
+            .exam-timer-bar #examTimer {
+                width: 100%;
+                text-align: center;
+                border-radius: 8px;
+            }
+
+            .number-grid {
+                grid-template-columns: repeat(5, minmax(34px, 1fr));
+                gap: 6px;
+            }
+
+            .number-btn {
+                height: 37px;
+            }
+
+            .nav-btn {
+                padding: 10px 5px;
+                font-size: 11px;
+            }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .option {
+                min-height: 52px;
+            }
+
+            .number-btn {
+                min-height: 42px;
+            }
+
+            .nav-btn {
+                min-height: 44px;
+            }
+        }
+
     </style>
 </head>
 
